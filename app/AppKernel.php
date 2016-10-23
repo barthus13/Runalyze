@@ -23,6 +23,7 @@ class AppKernel extends \Symfony\Component\HttpKernel\Kernel
             new Symfony\Bundle\TwigBundle\TwigBundle(),
             new \Symfony\Bundle\SwiftmailerBundle\SwiftmailerBundle(),
             new Runalyze\Bundle\CoreBundle\CoreBundle(),
+            new Bernard\BernardBundle\BernardBundle()
         ];
 
         if (in_array($this->getEnvironment(), array('dev', 'test'), true)) {

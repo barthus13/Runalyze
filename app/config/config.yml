@@ -111,3 +111,8 @@ swiftmailer:
     port:                 '%smtp_port%'
     encryption:           '%smtp_security%'
     sender_address:       '%mail_sender%'
+
+bernard:
+    driver: file
+    options:
+        directory: '%kernel.root_dir%/../data/queue'
