@@ -129,3 +129,14 @@ jms_translation:
             excluded_names: ["*TestCase.php", "*Test.php"]
             excluded_dirs: [cache, data, logs, test, doctrine]
             output-format: 'xlf'
+
+fos_oauth_server:
+    db_driver: orm
+    client_class:        Runalyze\Bundle\CoreBundle\Entity\Client
+    access_token_class:  Runalyze\Bundle\CoreBundle\Entity\AccessToken
+    refresh_token_class: Runalyze\Bundle\CoreBundle\Entity\RefreshToken
+    auth_code_class:     Runalyze\Bundle\CoreBundle\Entity\AuthCode
+    service:
+        options:
+             supported_scopes: activities
+        user_provider: app.user_provider.username

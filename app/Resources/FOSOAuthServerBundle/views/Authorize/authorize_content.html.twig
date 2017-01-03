@@ -1,0 +1,26 @@
+{% extends "base_not_logged_in.html.twig" %}
+{% set page_title='RUNALYZE | Authorize application' %}
+
+{% block content %}
+
+    {{ form_start(form, {'method': 'POST', 'action': path('fos_oauth_server_authorize'), 'label_attr': {'class': 'fos_oauth_server_authorize'} }) }}
+    <fieldset>
+        <legend>{% trans %}Authorize application{% endtrans %}</legend>
+        {% trans with {'%s': client.name} %}<b>%s</b> would like permissions to access your RUNALYZE account{% endtrans %}<br>
+
+    <input type="submit" name="accepted" value="{{ 'authorize.accept'|trans({}, 'FOSOAuthServerBundle') }}" />
+    <input type="submit" name="rejected" value="{{ 'authorize.reject'|trans({}, 'FOSOAuthServerBundle') }}" />
+
+{{ form_row(form.client_id) }}
+    {{ form_row(form.response_type) }}
+    {{ form_row(form.redirect_uri) }}
+    {{ form_row(form.state) }}
+    {{ form_row(form.scope) }}
+    </fieldset>
+
+    {{ form_rest(form) }}
+
+    </form>
+    {% trans %}You can revoke the permissions at any time in your RUNALYZE settings.{% endtrans %}
+
+{% endblock %}

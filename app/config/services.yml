@@ -42,6 +42,10 @@ services:
     arguments: ["@mailer", "@twig", "@translator"]
     calls:
       - [setFrom, ["%mail_sender%", "%mail_name%"]]
+  app.repository.account:
+    class: Runalyze\Bundle\CoreBundle\Entity\AccountRepository
+    factory: ["@doctrine.orm.entity_manager", getRepository]
+    arguments: [Runalyze\Bundle\CoreBundle\Entity\Account]
   app.repository.conf:
     class: Runalyze\Bundle\CoreBundle\Entity\ConfRepository
     factory: ["@doctrine.orm.entity_manager", getRepository]
@@ -135,3 +139,11 @@ services:
     arguments: ["@app.configuration_manager"]
     tags:
       - { name: twig.extension }
+  app.user_provider:
+    class: Runalyze\Bundle\CoreBundle\Provider\AccountProvider
+    arguments: ['@app.repository.account']
+  oauth_event_listener:
+    class:  Runalyze\Bundle\CoreBundle\EventListener\OAuthEventListener
+    tags:
+      - { name: kernel.event_listener, event: fos_oauth_server.pre_authorization_process, method: onPreAuthorizationProcess }
+      - { name: kernel.event_listener, event: fos_oauth_server.post_authorization_process, method: onPostAuthorizationProcess }
