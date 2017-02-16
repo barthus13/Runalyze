@@ -76,7 +76,6 @@ class ParserFITSingle extends ParserAbstractSingle {
 
 	/** @var array */
 	protected $DeveloperFieldMappingForRecord = array(
-		'0_Ground_Time' => ['stance_time', 10],
         'saturated_hemoglobin_percent' => ['smo2_0', 0.1],
         'total_hemoglobin_conc' => ['thb_0', 1]
 	);
@@ -89,6 +88,7 @@ class ParserFITSingle extends ParserAbstractSingle {
 		5 => ['distance', ['default' => 1, 'm' => 100]],
 		7 => ['power'],
 		39 => ['vertical_oscillation', ['default' => 1, 'Centimeters' => 100]],
+		40 => ['stance_time', ['default' => 1, 'Milliseconds' => 10]],
 		54 => [['thb_0', 'thb_1'], 100],
 		57 => [['smo2_0', 'smo2_1'], 1]
 	);
@@ -131,9 +131,10 @@ class ParserFITSingle extends ParserAbstractSingle {
 			isset($nativeFieldMapping[$this->Values['native_field_num'][0]]) &&
 			!empty($nativeFieldMapping[$this->Values['native_field_num'][0]][0]) &&
 			isset($this->Values['developer_data_index']) &&
+			isset($this->Values['field_definition_number']) &&
 			isset($this->Values['field_name'])
 		) {
-			$fieldname = $this->Values['developer_data_index'][0].'_'.str_replace(['"', ' '], ['', '_'], $this->Values['field_name'][0]);
+			$fieldname = $this->Values['developer_data_index'][0].'_'.$this->Values['field_definition_number'][0].'_'.str_replace(['"', ' '], ['', '_'], $this->Values['field_name'][0]);
 			$fieldname = preg_replace_callback('/(\W)/i', function(array $char) {
 			    return sprintf('_%02x_', ord($char[0]));
 			}, preg_replace('/(\s+)/i', '_', $fieldname));
