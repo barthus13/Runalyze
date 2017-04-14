@@ -181,6 +181,13 @@ class Account implements AdvancedUserInterface, \Serializable
      */
     private $role = UserRole::ROLE_USER;
 
+    /**
+     * @var \Doctrine\Common\Collections\Collection
+     *
+     * @ORM\OneToMany(targetEntity="Runalyze\Bundle\CoreBundle\Entity\CalendarNoteCategory", mappedBy="account", cascade={"persist"}, fetch="EXTRA_LAZY")
+     */
+    protected $calendarNoteCategories;
+
 
     public function __construct()
     {
@@ -716,6 +723,16 @@ class Account implements AdvancedUserInterface, \Serializable
     public function getRoles()
     {
         return array(UserRole::getRoleName($this->role));
+    }
+
+    /**
+     * Get calendar note categories
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getCalendarNoteCategories()
+    {
+        return $this->calendarNoteCategories;
     }
 
 

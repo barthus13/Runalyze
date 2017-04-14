@@ -7,7 +7,7 @@ use Runalyze\Bundle\CoreBundle\Entity\CalendarNoteCategory;
 use Runalyze\Bundle\CoreBundle\Form\Type\DurationNullableType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
@@ -28,7 +28,7 @@ class CalendarNoteCategoryType extends AbstractType
                 )
             ))
             ->add('color', TextType::class, array(
-                'label' => 'Name',
+                'label' => 'Color',
                 'required' => true,
                 'attr' => array(
                     'autofocus' => true

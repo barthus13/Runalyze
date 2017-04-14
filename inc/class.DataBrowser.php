@@ -226,7 +226,8 @@ class DataBrowser {
 		echo '<li>'.$this->getMonthKmLink().'</li>';
 		echo '<li>'.$this->getWeekKmLink().'</li>';
 		echo '<li>'.$this->getNaviSearchLink().'</li>';
-		echo '<li>'.$this->getAddLink().'</li>';
+        echo '<li>'.$this->getAddNoteLink().'</li>';
+        echo '<li>'.$this->getAddLink().'</li>';
 		echo '</ul>';
 	}
 
@@ -330,6 +331,16 @@ class DataBrowser {
 	protected function getAddLink() {
 		return ImporterWindow::link();
 	}
+
+    /**
+     * Get ajax-link for adding note
+     * @return string
+     */
+    protected function getAddNoteLink() {
+        return Ajax::window('<a href="/my/calendar/note/add"><i class="fa fa-fw fa-sticky-note-o"></i> '.__('Add note').'</a>', 'small');
+
+
+    }
 
 	/**
 	 * Get date string for given timestamp

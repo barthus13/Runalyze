@@ -9,12 +9,13 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
+use Runalyze\Profile\Calendar;
 
 class CalendarNoteType extends AbstractType
 {
@@ -44,29 +45,54 @@ class CalendarNoteType extends AbstractType
     {
         $builder
             ->add('note', TextareaType::class, array(
-                'label' => 'Name',
+                'label' => 'Note',
                 'required' => true,
                 'attr' => array(
                     'autofocus' => true
                 )
             ))
             ->add('startDate', DateType::class, [
-                'label' => 'Start of use',
+                'label' => 'Start date',
                 'widget' => 'single_text',
                 'format' => 'dd.MM.yyyy',
                 'html5' => false,
-                'required' => false,
                 'attr' => ['class' => 'pick-a-date small-size', 'placeholder' => 'dd.mm.YYYY']
             ])
             ->add('endDate', DateType::class, [
-                'label' => 'End of use',
+                'label' => 'End date',
                 'widget' => 'single_text',
                 'format' => 'dd.MM.yyyy',
                 'html5' => false,
-                'required' => false,
                 'attr' => ['class' => 'pick-a-date small-size', 'placeholder' => 'dd.mm.YYYY']
             ])
+            ->add('category', ChoiceType::class, [
+                'required' => false,
+                'choices' => $this->getAllNoteCategories(),
+                'choice_label' => 'name',
+                'label' => 'Note category',
+                'placeholder' => 'Choose category'
+            ])
         ;
+    }
+
+    private function getAllNoteCategories() {
+        $calendarNoteCategories = $this->getAccount()->getCalendarNoteCategories();
+        $internalCategories = [Calendar\CategoryProfile::ILLNESS, Calendar\CategoryProfile::INJURY];
+        if (!empty($calendarNoteCategories)) {
+            foreach ($calendarNoteCategories as $category) {
+                if ($key = array_search($category->getInternalId(), $internalCategories)) {
+                    unset($internalCategories[$key]);
+                }
+
+            }
+        }
+
+        foreach ($internalCategories as $internalCategoryId) {
+            $calendarCategory = Calendar\CategoryProfile::objectFor($internalCategoryId);
+            $calendarCategory->setAccount($this->getAccount());
+            //$calendarNoteCategories[] = $calendarCategory;
+        }
+        return $calendarNoteCategories;
     }
 
     public function configureOptions(OptionsResolver $resolver)

@@ -1,0 +1,42 @@
+{% extends "base_logged_in.twig" %}
+
+{% block content %}
+    <div class="panel-heading">
+        <h1>{% trans %}Your calendar note categories{% endtrans %}</h1>
+    </div>
+
+    <div class="panel-content">
+        {% include 'flashmessages.html.twig' %}
+
+        {% if noteCategories|length > 0 %}
+        <table class="fullwidth zebra-style more-padding">
+            <thead>
+            <tr>
+                <th></th>
+                <th>{{ 'Name'|trans }}</th>
+                <th>{{ 'Privacy'|trans }}</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody class="c">
+                {% for category in noteCategories %}
+                    {# @var type \Runalyze\Bundle\CoreBundle\Entity\CalendarNoteCategory #}
+                    <tr>
+                        <td><a class="window" href="{{ url('equipment-category-edit', {'id': category.id}) }}"><i class="fa fa-fw fa-pencil"></i></a></td>
+                        <td>{{ category.name }}</td>
+                        <td>{{ category.privacy }}</td>
+                        <td><a class="window color-danger" href="{{ url('equipment-category-delete', { 'id': type.id, 't': csrf_token('deleteCalendarNoteCategory') }) }}" data-confirm="{% trans %}Do you really want to delete this?{% endtrans %}"><i class="fa fa-trash" title="{{ 'Delete'|trans }}"></i></a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+            <p class="text">{% trans %}You don't have any categories so far.{% endtrans %}</p>
+        {% endif %}
+
+        <div class="c blocklist blocklist-width-auto margin-top-2x margin-bottom">
+            <a class="window" href="{{ url('equipment-category-add') }}"><strong><i class="fa fa-fw fa-plus"></i> {{ 'Add an equipment category'|trans }}</strong></a>
+        </div>
+    </div>
+
+{% endblock %}

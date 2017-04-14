@@ -1,0 +1,44 @@
+{% extends "base_logged_in.twig" %}
+{% from '_macro/form.html.twig' import dangerZoneDelete %}
+
+{% block content %}
+    <div class="panel-heading">
+        {% if form.vars.data.id is null%}
+            <h1>{{ 'Add a note'|trans }}</h1>
+        {% else %}
+            <h1>{{ 'Edit note'|trans }}</h1>
+        {% endif %}
+    </div>
+
+    <div class="panel-content">
+        {% include 'flashmessages.html.twig' %}
+
+        {{ form_start(form, {'attr': {'class': 'ajax no-automatic-reload'} }) }}
+
+        <fieldset class="without-legend">
+            {{ form_label(form.category) }}
+            {{ form_errors(form.category) }}
+            {{ form_widget(form.category, {'div_class': 'w100 block with50erLabel'}) }}
+            <a href="{{ url('calendar-note-category-add') }}" class="window" title="{% trans %}Add a category{% endtrans %}"><i class="fa fa-fw fa-plus"></i></a>
+            {{ form_row(form.startDate, {'div_class': 'w100 block with50erLabel'}) }}
+            {{ form_row(form.endDate, {'div_class': 'w100 block with50erLabel'}) }}
+            {{ form_row(form.note, {'div_class': 'w100 block with50erLabel'}) }}
+
+            <div class="c margin-top">
+                {% if form.vars.data.id is null%}
+                    <input type="submit" value="{% trans %}Add{% endtrans %}" name="submit">
+                {% else %}
+                    <input type="submit" value="{% trans %}Update{% endtrans %}" name="submit">
+                {% endif %}
+            </div>
+        </fieldset>
+
+        {{ form_rest(form) }}
+        {{ form_end(form) }}
+    </div>
+
+    {% if form.vars.data.id is not null %}
+        {{ dangerZoneDelete(url('calendar-note-delete', {'id': form.vars.data.id}), 'deleteNoteCategory') }}
+    {% endif %}
+
+{% endblock %}

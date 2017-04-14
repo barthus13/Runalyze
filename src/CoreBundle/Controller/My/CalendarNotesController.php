@@ -56,7 +56,7 @@ class CalendarNotesController extends Controller
         $noteCategory->setAccount($account);
 
         $form = $this->createForm(Form\CalendarNoteCategoryType::class, $noteCategory ,[
-            'action' => $this->generateUrl('equipment-category-add')
+            'action' => $this->generateUrl('calendar-note-category-add')
         ]);
         $form->handleRequest($request);
 
@@ -68,7 +68,7 @@ class CalendarNotesController extends Controller
             ]);
         }
 
-        return $this->render('my/equipment/form-category.html.twig', [
+        return $this->render('my/calendar/form-note-category.html.twig', [
             'form' => $form->createView()
         ]);
     }
@@ -88,22 +88,22 @@ class CalendarNotesController extends Controller
             throw $this->createNotFoundException();
         }
 
-        $form = $this->createForm(Form\EquipmentCategoryType::class, $noteCategory ,[
-            'action' => $this->generateUrl('equipment-category-edit', ['id' => $noteCategory->getId()])
+        $form = $this->createForm(Form\CalendarNoteCategoryType::class, $noteCategory ,[
+            'action' => $this->generateUrl('calendar-note-category-edit', ['id' => $noteCategory->getId()])
         ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $this->getCalendarNoteCategoryRepository()->save($noteCategory);
 
-            return $this->redirectToRoute('equipment-category-edit', [
+            return $this->redirectToRoute('calendar-note-category-edit', [
                 'id' => $noteCategory->getId()
             ]);
         }
 
-        return $this->render('my/equipment/form-category.html.twig', [
+        return $this->render('my/calendar/form-note-category.html.twig', [
             'form' => $form->createView(),
-            'equipment' => $this->getCalendarNoteCategoryRepository()->findByTypeId($noteCategory->getId(), $account)
+            'categoryNotes' => $noteCategory->getNotes()
         ]);
     }
 
@@ -116,7 +116,7 @@ class CalendarNotesController extends Controller
         if (!$this->isCsrfTokenValid('deleteCalendarNoteCategory', $request->get('t'))) {
             $this->addFlash('error', $this->get('translator')->trans('Invalid token.'));
 
-            return $this->redirectToRoute('equipment-overview');
+            return $this->redirectToRoute('calendar-note-category-edit', ['id' => $noteCategory->getId()]);
         }
 
         if ($noteCategory->getAccount()->getId() != $account->getId()) {
@@ -130,30 +130,28 @@ class CalendarNotesController extends Controller
     }
 
     /**
-     * @Route("/note/{categoryId}/add/", name="calendar-note-add", requirements={"categoryId" = "\d+"})
-     * @ParamConverter("calendarNoteCategory", class="CoreBundle:CalendarNote")
+     * @Route("/note/add", name="calendar-note-add")
      */
-    public function noteAddAction(Request $request, CalendarNote $calendarNoteCategory, Account $account)
+    public function noteAddAction(Request $request, Account $account)
     {
-        $note = new CalendarNote();
-        $note->setAccount($account);
-        $note->setCategory($calendarNoteCategory);
+        $calendarNote = new CalendarNote();
+        $calendarNote->setAccount($account);
 
-        $form = $this->createForm(Form\EquipmentType::class, $note,[
-            'action' => $this->generateUrl('calendar-note-add', ['categoryId' => $note->getCategory()])
+        $form = $this->createForm(Form\CalendarNoteType::class, $calendarNote,[
+            'action' => $this->generateUrl('calendar-note-add')
         ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $this->getCalendarNoteRepository()->save($calendarNote);
-            $this->get('app.automatic_reload_flag_setter')->set(AutomaticReloadFlagSetter::FLAG_PLUGINS);
+            $this->get('app.automatic_reload_flag_setter')->set(AutomaticReloadFlagSetter::FLAG_DATA_BROWSER);
 
             return $this->redirectToRoute('calendar-note-edit', [
-                'id' => $calendarNote->getCategory()->getId()
+                'id' => $calendarNote->getId()
             ]);
         }
 
-        return $this->render('my/equipment/form-equipment.html.twig', [
+        return $this->render('my/calendar/form-note.html.twig', [
             'form' => $form->createView(),
             'category_id' => $calendarNote->getId()
         ]);
@@ -180,16 +178,16 @@ class CalendarNotesController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $this->getCalendarNoteRepository()->save($calendarNote);
-            $this->get('app.automatic_reload_flag_setter')->set(AutomaticReloadFlagSetter::FLAG_PLUGINS);
+            $this->get('app.automatic_reload_flag_setter')->set(AutomaticReloadFlagSetter::FLAG_DATA_BROWSER);
 
-            return $this->redirectToRoute('equipment-category-edit', [
-                'id' => $calendarNote->getType()->getId()
+            return $this->redirectToRoute('calendar-note-edit', [
+                'id' => $calendarNote->getId()
             ]);
         }
 
-        return $this->render('my/equipment/form-equipment.html.twig', [
+        return $this->render('my/calendar/form-note.html.twig', [
             'form' => $form->createView(),
-            'category_id' => $calendarNote->getType()->getId()
+            'category_id' => $calendarNote->getId()
         ]);
     }
 

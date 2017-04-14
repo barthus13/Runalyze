@@ -52,12 +52,19 @@ class CalendarNoteCategory
     /**
      * @var Account
      *
-     * @ORM\ManyToOne(targetEntity="Runalyze\Bundle\CoreBundle\Entity\Account")
+     * @ORM\ManyToOne(targetEntity="Runalyze\Bundle\CoreBundle\Entity\Account", inversedBy="calendarNoteCategories")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="accountid", referencedColumnName="id", nullable=false)
      * })
      */
     private $account;
+
+    /**
+     * @var \Doctrine\Common\Collections\Collection
+     *
+     * @ORM\OneToMany(targetEntity="Runalyze\Bundle\CoreBundle\Entity\CategoryNote", mappedBy="category", fetch="EXTRA_LAZY")
+     */
+    private $notes;
 
 
     public function __construct()
@@ -173,5 +180,12 @@ class CalendarNoteCategory
         return $this->account;
     }
 
+    /**
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getNotes()
+    {
+        return $this->notes;
+    }
 }
 
