@@ -45,7 +45,7 @@ class CalendarNote
     /**
      * @var CalendarNoteCategory
      *
-     * @ORM\ManyToOne(targetEntity="Runalyze\Bundle\CoreBundle\Entity\CalendarNoteCategory", cascade={"persist"})
+     * @ORM\ManyToOne(targetEntity="Runalyze\Bundle\CoreBundle\Entity\CalendarNoteCategory", inversedBy="notes", cascade={"persist"})
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="category_id", referencedColumnName="id", nullable=false)
      * })

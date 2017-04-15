@@ -62,7 +62,7 @@ class CalendarNoteCategory
     /**
      * @var \Doctrine\Common\Collections\Collection
      *
-     * @ORM\OneToMany(targetEntity="Runalyze\Bundle\CoreBundle\Entity\CategoryNote", mappedBy="category", fetch="EXTRA_LAZY")
+     * @ORM\OneToMany(targetEntity="Runalyze\Bundle\CoreBundle\Entity\CalendarNote", mappedBy="category", fetch="EXTRA_LAZY")
      */
     private $notes;
 

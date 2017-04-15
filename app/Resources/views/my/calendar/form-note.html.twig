@@ -16,10 +16,14 @@
         {{ form_start(form, {'attr': {'class': 'ajax no-automatic-reload'} }) }}
 
         <fieldset class="without-legend">
-            {{ form_label(form.category) }}
-            {{ form_errors(form.category) }}
-            {{ form_widget(form.category, {'div_class': 'w100 block with50erLabel'}) }}
-            <a href="{{ url('calendar-note-category-add') }}" class="window" title="{% trans %}Add a category{% endtrans %}"><i class="fa fa-fw fa-plus"></i></a>
+            <div class="w100 block with50erLabel">
+                {{ form_label(form.category) }}
+                {{ form_errors(form.category) }}
+                {{ form_widget(form.category) }}
+                <a href="{{ url('calendar-note-category-add') }}" class="window" title="{% trans %}Add a category{% endtrans %}"><i class="fa fa-fw fa-plus"></i></a>
+
+            </div>
+
             {{ form_row(form.startDate, {'div_class': 'w100 block with50erLabel'}) }}
             {{ form_row(form.endDate, {'div_class': 'w100 block with50erLabel'}) }}
             {{ form_row(form.note, {'div_class': 'w100 block with50erLabel'}) }}
