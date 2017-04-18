@@ -10,11 +10,25 @@ class CalendarNoteRepository extends EntityRepository
      * @param Account $account
      * @return CalendarNote[]
      */
-    public function findAllFor(Account $account)
+    public function findAllFor(Account $account, $limit = null)
     {
-        return $this->findBy([
-            'account' => $account->getId()
-        ]);
+        return $this->findBy(
+            ['account' => $account->getId()],
+            ['startDate' => 'DESC'],
+            $limit
+        );
+    }
+
+    /**
+     * @param CalendarNoteCategory $calendarNoteCategory
+     * @return CalendarNote[]
+     */
+    public function findByCategory(CalendarNoteCategory $calendarNoteCategory, $limit = null)
+    {
+         return $this->findBy(
+             ['category' => $calendarNoteCategory],
+             ['startDate' => 'DESC'],
+             $limit);
     }
 
     public function save(CalendarNote $calendarNote)

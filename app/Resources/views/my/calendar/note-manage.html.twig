@@ -5,7 +5,40 @@
     <div class="panel-heading">
             <h1>{{ 'Add a note'|trans }}</h1>
     </div>
+
     {% include 'my/calendar/form-note.html.twig' %}
+
+    <div class="panel-heading panel-sub-heading">
+        <h1>{{ 'Your latest notes'|trans }}</h1>
+    </div>
+    {% if notes|length > 0  %}
+
+        <table id="sports" class="zebra-style w100 more-more-padding">
+            <thead>
+            <tr>
+                <th>&nbsp;</th>
+                <th>{{ 'Start date'|trans }}</th>
+                <th>{{ 'End date'|trans }}</th>
+                <th>{{ 'Note'|trans }}</th>
+            </tr>
+            </thead>
+            <tbody>
+                {% for note in notes %}
+                    {# @var note \Runalyze\Bundle\CoreBundle\Entity\CalendarNote #}
+                    <tr>
+                        <td class="as-small-as-possible">
+                            <a class="window" href="{{ url('calendar-note-edit', {'id': note.id}) }}"><i class="fa fa-fw fa-pencil" title="{% trans %}Edit{% endtrans %}"></i></a>
+                            <a class="window" href="{{ url('calendar-note-delete', { 'id': note.id, 't': csrf_token('deleteCalendarNote') }) }}" data-confirm="{% trans %}Do you really want to delete this?{% endtrans %}"><i class="fa fa-trash" title="{% trans %}Delete{% endtrans %}"></i></a>
+                        </td>
+                        <td>{{ note.startDate|date('Y-m-d') }}</td>
+                        <td>{{ note.endDate|date('Y-m-d') }}</td>
+                        <td>{{ note.note }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
     <div class="panel-heading panel-sub-heading">
         <h1>{{ 'Edit note categories'|trans }}</h1>
     </div>

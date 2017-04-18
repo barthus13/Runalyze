@@ -100,10 +100,9 @@ class CalendarNotesController extends Controller
                 'id' => $noteCategory->getId()
             ]);
         }
-
         return $this->render('my/calendar/form-note-category.html.twig', [
             'form' => $form->createView(),
-            'categoryNotes' => $noteCategory->getNotes()
+            'categoryNotes' => $this->getCalendarNoteRepository()->findByCategory($noteCategory)
         ]);
     }
 
@@ -187,7 +186,8 @@ class CalendarNotesController extends Controller
         return $this->render('my/calendar/note-manage.html.twig', [
             'form' => $form->createView(),
             'category_id' => $calendarNote->getId(),
-            'noteCategories' => $this->getCalendarNoteCategoryRepository()->findAllFor($account)
+            'noteCategories' => $this->getCalendarNoteCategoryRepository()->findAllFor($account),
+            'notes' => $this->getCalendarNoteRepository()->findAllFor($account, 10)
         ]);
     }
 
@@ -214,8 +214,8 @@ class CalendarNotesController extends Controller
             $this->getCalendarNoteRepository()->save($calendarNote);
             $this->get('app.automatic_reload_flag_setter')->set(AutomaticReloadFlagSetter::FLAG_DATA_BROWSER);
 
-            return $this->redirectToRoute('calendar-note-edit', [
-                'id' => $calendarNote->getId()
+            return $this->redirectToRoute('calendar-note-category-edit', [
+                'id' => $calendarNote->getCategory()->getId()
             ]);
         }
 
