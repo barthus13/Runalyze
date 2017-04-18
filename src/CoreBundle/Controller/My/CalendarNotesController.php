@@ -123,16 +123,49 @@ class CalendarNotesController extends Controller
             throw $this->createNotFoundException();
         }
 
+        if ($noteCategory->getInternalId() !== null) {
+            $this->addFlash('error', $this->get('translator')->trans('This category cannot be deleted.'));
+        }
+
         $this->getCalendarNoteCategoryRepository()->remove($noteCategory);
         $this->addFlash('success', $this->get('translator')->trans('The category has been deleted.'));
 
-        return $this->redirectToRoute('equipment-overview');
+        return $this->redirectToRoute('calendar-note-manage');
     }
 
     /**
      * @Route("/note/add", name="calendar-note-add")
      */
     public function noteAddAction(Request $request, Account $account)
+    {
+        $calendarNote = new CalendarNote();
+        $calendarNote->setAccount($account);
+        if ($request->get('categoryId')) {
+            $calendarNote->setCategory($this->getDoctrine()->getManager()->getReference('CoreBundle:CalendarNoteCategory', $request->get('categoryId')));
+        }
+
+        $form = $this->createForm(Form\CalendarNoteType::class, $calendarNote,[
+            'action' => $this->generateUrl('calendar-note-add')
+        ]);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->getCalendarNoteRepository()->save($calendarNote);
+            $this->get('app.automatic_reload_flag_setter')->set(AutomaticReloadFlagSetter::FLAG_DATA_BROWSER);
+            $this->addFlash('notice', $this->get('translator')->trans('Notice has been added.'));
+            return $this->redirectToRoute('calendar-note-manage');
+        }
+
+        return $this->render('my/calendar/note-form.html.twig', [
+            'form' => $form->createView(),
+            'category_id' => $calendarNote->getId()
+        ]);
+    }
+
+    /**
+     * @Route("/note/manage", name="calendar-note-manage")
+     */
+    public function noteManageAction(Request $request, Account $account)
     {
         $calendarNote = new CalendarNote();
         $calendarNote->setAccount($account);
@@ -151,9 +184,10 @@ class CalendarNotesController extends Controller
             ]);
         }
 
-        return $this->render('my/calendar/form-note.html.twig', [
+        return $this->render('my/calendar/note-manage.html.twig', [
             'form' => $form->createView(),
-            'category_id' => $calendarNote->getId()
+            'category_id' => $calendarNote->getId(),
+            'noteCategories' => $this->getCalendarNoteCategoryRepository()->findAllFor($account)
         ]);
     }
 
@@ -185,7 +219,7 @@ class CalendarNotesController extends Controller
             ]);
         }
 
-        return $this->render('my/calendar/form-note.html.twig', [
+        return $this->render('my/calendar/note-form.html.twig', [
             'form' => $form->createView(),
             'category_id' => $calendarNote->getId()
         ]);
@@ -211,8 +245,8 @@ class CalendarNotesController extends Controller
 
         $this->getCalendarNoteRepository()->remove($calendarNote);
         $this->get('app.automatic_reload_flag_setter')->set(AutomaticReloadFlagSetter::FLAG_PLUGINS);
-        $this->addFlash('success', $this->get('translator')->trans('The object has been deleted.'));
+        $this->addFlash('success', $this->get('translator')->trans('The note has been deleted.'));
 
-        //close
+        return $this->redirectToRoute('calendar-note-category-edit', ['id' => $calendarNote->getCategory()->getId()]);
     }
 }

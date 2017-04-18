@@ -22,7 +22,7 @@
                 {% for category in noteCategories %}
                     {# @var type \Runalyze\Bundle\CoreBundle\Entity\CalendarNoteCategory #}
                     <tr>
-                        <td><a class="window" href="{{ url('equipment-category-edit', {'id': category.id}) }}"><i class="fa fa-fw fa-pencil"></i></a></td>
+                        <td><a class="window" href="{{ url('calendar-note-edit', {'id': category.id}) }}"><i class="fa fa-fw fa-pencil"></i></a></td>
                         <td>{{ category.name }}</td>
                         <td>{{ category.privacy }}</td>
                         <td><a class="window color-danger" href="{{ url('equipment-category-delete', { 'id': type.id, 't': csrf_token('deleteCalendarNoteCategory') }) }}" data-confirm="{% trans %}Do you really want to delete this?{% endtrans %}"><i class="fa fa-trash" title="{{ 'Delete'|trans }}"></i></a></td>
@@ -35,7 +35,7 @@
         {% endif %}
 
         <div class="c blocklist blocklist-width-auto margin-top-2x margin-bottom">
-            <a class="window" href="{{ url('equipment-category-add') }}"><strong><i class="fa fa-fw fa-plus"></i> {{ 'Add an equipment category'|trans }}</strong></a>
+            <a class="window" href="{{ url('equipment-category-add') }}"><strong><i class="fa fa-fw fa-plus"></i> {{ 'Add an note category'|trans }}</strong></a>
         </div>
     </div>
 

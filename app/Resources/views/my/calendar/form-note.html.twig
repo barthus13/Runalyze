@@ -1,15 +1,3 @@
-{% extends "base_logged_in.twig" %}
-{% from '_macro/form.html.twig' import dangerZoneDelete %}
-
-{% block content %}
-    <div class="panel-heading">
-        {% if form.vars.data.id is null%}
-            <h1>{{ 'Add a note'|trans }}</h1>
-        {% else %}
-            <h1>{{ 'Edit note'|trans }}</h1>
-        {% endif %}
-    </div>
-
     <div class="panel-content">
         {% include 'flashmessages.html.twig' %}
 
@@ -40,9 +28,3 @@
         {{ form_rest(form) }}
         {{ form_end(form) }}
     </div>
-
-    {% if form.vars.data.id is not null %}
-        {{ dangerZoneDelete(url('calendar-note-delete', {'id': form.vars.data.id}), 'deleteNoteCategory') }}
-    {% endif %}
-
-{% endblock %}

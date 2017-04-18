@@ -35,11 +35,47 @@
         {{ form_end(form) }}
     </div>
 
-
-
-    {% if form.vars.data.id is not null %}
+    {% if form.vars.data.id is not null and form.vars.data.internalId is null %}
         {{ dangerZoneDelete(url('calendar-note-category-delete', {'id': form.vars.data.id}), 'deleteCalendarNoteCategory',
             'If you delete a calendar note category all corresponding notes will be deleted.'
         ) }}
     {% endif %}
+
+    <p class="text margin-top">
+        <a class="window" href="{{ url('calendar-note-manage') }}">&laquo; {% trans %}back to list{% endtrans %}</a>
+    </p>
+
+{% if form.vars.data.id is not null  %}
+
+    <table id="sports" class="zebra-style w100 more-more-padding">
+        <thead>
+        <tr>
+            <th>&nbsp;</th>
+            <th>{{ 'Start date'|trans }}</th>
+            <th>{{ 'End date'|trans }}</th>
+            <th>{{ 'Note'|trans }}</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% if categoryNotes|length > 0 %}
+            {% for note in categoryNotes %}
+                {# @var note \Runalyze\Bundle\CoreBundle\Entity\CalendarNote #}
+                <tr>
+                    <td class="as-small-as-possible">
+                        <a class="window" href="{{ url('calendar-note-edit', {'id': note.id}) }}"><i class="fa fa-fw fa-pencil" title="{% trans %}Edit{% endtrans %}"></i></a>
+                        <a class="window" href="{{ url('calendar-note-delete', { 'id': note.id, 't': csrf_token('deleteCalendarNote') }) }}" data-confirm="{% trans %}Do you really want to delete this?{% endtrans %}"><i class="fa fa-trash" title="{% trans %}Delete{% endtrans %}"></i></a>
+                    </td>
+                    <td>{{ note.startDate|date('Y-m-d') }}</td>
+                    <td>{{ note.endDate|date('Y-m-d') }}</td>
+                    <td>{{ note.note }}</td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr><td colspan="2"><em>{% trans %}You don't have any notes in this category.{% endtrans %}<br>
+                        <a href="{{ url('calendar-note-add', {'categoryId': form.vars.data.id}) }}" class="window">{{ 'Add a note'|trans }}</a></em>
+                </td></tr>
+        {% endif %}
+        </tbody>
+    </table>
+{% endif %}
 {% endblock %}

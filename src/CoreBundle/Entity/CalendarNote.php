@@ -3,6 +3,7 @@
 namespace Runalyze\Bundle\CoreBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * CalendarNote
@@ -39,6 +40,11 @@ class CalendarNote
      * @var null|\DateTime
      *
      * @ORM\Column(name="end_date", type="date", nullable=false)
+     * @Assert\Date()
+     * @Assert\Expression(
+     *     "this.getStartDate() <= this.getEndDate()",
+     *     message="The end date must be after the start date"
+     * )
      */
     private $endDate;
 

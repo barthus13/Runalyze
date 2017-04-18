@@ -1,0 +1,41 @@
+{% extends "base_logged_in.twig" %}
+{% from '_macro/form.html.twig' import dangerZoneDelete %}
+
+{% block content %}
+    <div class="panel-heading">
+            <h1>{{ 'Add a note'|trans }}</h1>
+    </div>
+    {% include 'my/calendar/form-note.html.twig' %}
+    <div class="panel-heading panel-sub-heading">
+        <h1>{{ 'Edit note categories'|trans }}</h1>
+    </div>
+    <table id="notes" class="zebra-style w100 more-more-padding">
+        <thead>
+        <tr>
+            <th>&nbsp;</th>
+            <th>{{ 'Category'|trans }}</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% if noteCategories|length > 0 %}
+            {% for category in noteCategories %}
+                {# @var category \Runalyze\Bundle\CoreBundle\Entity\CalendarNoteCategory #}
+                <tr>
+                    <td class="as-small-as-possible">
+                        <a class="window" href="{{ url('calendar-note-category-edit', {'id': category.id}) }}"><i class="fa fa-fw fa-pencil" title="{% trans %}Edit{% endtrans %}"></i></a>
+                        {% if category.internalId is null %}
+                            <a class="window" href="{{ url('calendar-note-category-delete', { 'id': category.id, 't': csrf_token('deleteCalendarNoteCategory') }) }}" data-confirm="{% trans %}Do you really want to delete this?{% endtrans %}"><i class="fa fa-trash" title="{% trans %}Delete{% endtrans %}"></i></a>
+                        {% endif %}
+                    </td>
+                    <td>{{ category.name }}</td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr><td colspan="2"><em>{% trans %}You don't have any note categories.{% endtrans %}</em><br>
+                    <a href="{{ url('calendar-note-category-add') }}" class="window">{{ 'Add a note category'|trans }}</a></em>
+            </td></tr>
+        {% endif %}
+        </tbody>
+    </table>
+
+{% endblock %}

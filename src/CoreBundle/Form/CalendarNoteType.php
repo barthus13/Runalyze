@@ -48,7 +48,8 @@ class CalendarNoteType extends AbstractType
                 'label' => 'Note',
                 'required' => true,
                 'attr' => array(
-                    'autofocus' => true
+                    'autofocus' => true,
+                    'class' => 'full-size'
                 )
             ))
             ->add('startDate', DateType::class, [
@@ -66,7 +67,7 @@ class CalendarNoteType extends AbstractType
                 'attr' => ['class' => 'pick-a-date small-size', 'placeholder' => 'dd.mm.YYYY']
             ])
             ->add('category', ChoiceType::class, [
-                'required' => false,
+                'required' => true,
                 'choices' => $this->getAllNoteCategories(),
                 'choice_label' => 'name',
                 'label' => 'Note category',
@@ -80,17 +81,14 @@ class CalendarNoteType extends AbstractType
         $internalCategories = [Calendar\CategoryProfile::ILLNESS, Calendar\CategoryProfile::INJURY];
         if (!empty($calendarNoteCategories)) {
             foreach ($calendarNoteCategories as $category) {
-                if ($key = array_search($category->getInternalId(), $internalCategories)) {
-                    unset($internalCategories[$key]);
-                }
-
+                    unset($internalCategories[array_search($category->getInternalId(), $internalCategories)]);
             }
         }
 
         foreach ($internalCategories as $internalCategoryId) {
             $calendarCategory = Calendar\CategoryProfile::objectFor($internalCategoryId);
             $calendarCategory->setAccount($this->getAccount());
-            //$calendarNoteCategories[] = $calendarCategory;
+            $calendarNoteCategories[] = $calendarCategory;
         }
         return $calendarNoteCategories;
     }

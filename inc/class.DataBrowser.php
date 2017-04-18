@@ -337,7 +337,7 @@ class DataBrowser {
      * @return string
      */
     protected function getAddNoteLink() {
-        return Ajax::window('<a href="/my/calendar/note/add"><i class="fa fa-fw fa-sticky-note-o"></i> '.__('Add note').'</a>', 'small');
+        return Ajax::window('<a href="/my/calendar/note/manage"><i class="fa fa-fw fa-sticky-note-o"></i> '.__('Manage notes').'</a>', 'small');
 
 
     }
