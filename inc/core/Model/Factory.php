@@ -126,7 +126,7 @@ class Factory {
 	 */
 	public function raceResult($activityid) {
 		return new RaceResult\Entity(
-			$this->arrayByPK('raceresult', $activityid)
+			$this->arrayByPK('raceresult', $activityid, null)
 		);
 	}
 
