@@ -8,41 +8,18 @@ use Runalyze\Bundle\CoreBundle\Entity\AccountRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 
-class AccountRepositoryTest extends KernelTestCase
+class AccountRepositoryTest extends AbstractRepositoryTestCase
 {
-    /** @var EntityManager */
-    protected $EntityManager;
-
     /** @var AccountRepository */
     protected $AccountRepository;
 
     protected function setUp()
     {
-        static::bootKernel();
+        $this->FixtureClasses = [];
 
-        $this->EntityManager = static::$kernel->getContainer()->get('doctrine')->getManager();
+        parent::setUp();
+
         $this->AccountRepository = $this->EntityManager->getRepository('CoreBundle:Account');
-
-        $this->deleteAllAccounts();
-    }
-
-    protected function tearDown()
-    {
-        $this->deleteAllAccounts();
-
-        parent::tearDown();
-
-        $this->EntityManager->close();
-        $this->EntityManager = null;
-    }
-
-    protected function deleteAllAccounts()
-    {
-        foreach ($this->AccountRepository->findAll() as $account) {
-            $this->EntityManager->remove($account);
-        }
-
-        $this->EntityManager->flush();
     }
 
     /**
@@ -81,7 +58,9 @@ class AccountRepositoryTest extends KernelTestCase
 
     public function testNumberOfActivatedUsers()
     {
+        $activeAccounts = $this->AccountRepository->getAmountOfActivatedUsers(false);
         $activatedAccountNames = ['foo', 'bar', 'baz'];
+
         foreach ($activatedAccountNames as $name) {
             $this->EntityManager->persist($this->getNewAccount($name));
         }
@@ -89,7 +68,7 @@ class AccountRepositoryTest extends KernelTestCase
         $this->EntityManager->persist($this->getNewAccount('foobar')->setActivationHash(bin2hex(random_bytes(16))));
         $this->EntityManager->flush();
 
-        $this->assertEquals(3, $this->AccountRepository->getAmountOfActivatedUsers(false));
+        $this->assertEquals($activeAccounts + 3, $this->AccountRepository->getAmountOfActivatedUsers(false));
     }
 
     public function testDeletingNonActivatedUsers()
@@ -135,5 +114,36 @@ class AccountRepositoryTest extends KernelTestCase
         $this->assertFalse($this->AccountRepository->activateByHash('unknownHash'));
         $this->assertTrue($this->AccountRepository->activateByHash($activationHash));
         $this->assertNull($fooAccount->getActivationHash());
+    }
+
+    public function testFindingByLanguage()
+    {
+        $english1 = $this->getNewAccount('en1')->setLanguage('en');
+        $english2 = $this->getNewAccount('en2')->setLanguage('en');
+        $german = $this->getNewAccount('de')->setLanguage('de');
+        $swedish = $this->getNewAccount('sv')->setLanguage('sv');
+
+        $this->EntityManager->persist($english1);
+        $this->EntityManager->persist($english2);
+        $this->EntityManager->persist($german);
+        $this->EntityManager->persist($swedish);
+        $this->EntityManager->flush();
+
+        $this->assertEquals(
+            [$english1->getId(), $english2->getId()],
+            $this->AccountRepository->findAllByLanguage('en')
+        );
+        $this->assertEquals(
+            [$english1->getId(), $english2->getId(), $german->getId()],
+            $this->AccountRepository->findAllByLanguage(['en', 'de'])
+        );
+        $this->assertEquals(
+            [$swedish->getId()],
+            $this->AccountRepository->findAllByLanguage(['en', 'de'], true)
+        );
+        $this->assertEquals(
+            [$german->getId(), $swedish->getId()],
+            $this->AccountRepository->findAllByLanguage('en', true)
+        );
     }
 }

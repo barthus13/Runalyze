@@ -137,7 +137,7 @@ class ParserFITSingle extends ParserAbstractSingle {
 			$fieldname = preg_replace_callback('/(\W)/i', function(array $char) {
 			    return sprintf('_%02x_', ord($char[0]));
 			}, preg_replace('/(\s+)/i', '_', $fieldname));
-			
+
 			$nativeFieldNum = $this->Values['native_field_num'][0];
 			$unitDefinition = str_replace('"', '', $this->Values['units'][0]);
 
@@ -306,6 +306,9 @@ class ParserFITSingle extends ParserAbstractSingle {
 				case 79:
 					$this->readUndocumentedUserData();
 					break;
+                case 140:
+                    $this->readUndocumentedDataBlob140();
+                    break;
 			}
 		}
 	}
@@ -371,17 +374,29 @@ class ParserFITSingle extends ParserAbstractSingle {
 		if (isset($this->Values['pool_length']))
 			$this->TrainingObject->setPoolLength($this->Values['pool_length'][0]);
 
-		if (isset($this->Values['sport']))
+		if (isset($this->Values['sport']) && !$this->tryToSetFitSportEnum($this->Values['sport'][0]))
 			$this->guessSportID($this->Values['sport'][1]);
 
 		if (isset($this->Values['total_training_effect']) && $this->Values['total_training_effect'][0] >= 10.0 && $this->Values['total_training_effect'][0] <= 50.0)
 			$this->TrainingObject->setFitTrainingEffect($this->Values['total_training_effect'][0]/10);
 	}
 
+    /**
+     * @param int|string $sportEnum
+     * @return bool
+     */
+	protected function tryToSetFitSportEnum($sportEnum) {
+	    return $this->setSportTypeFromEnumIfAvailable((int)$sportEnum, new \Runalyze\Profile\Sport\Mapping\FitSdkMapping());
+    }
+
 	/**
 	 * Read sport
 	 */
 	protected function readSport() {
+	    if (isset($this->Values['sport']) && $this->tryToSetFitSportEnum($this->Values['sport'][0])) {
+	        return;
+        }
+
 		if (isset($this->Values['name'])) {
 			$this->guessSportID(substr($this->Values['name'][0], 1, -1));
 		}
@@ -398,7 +413,7 @@ class ParserFITSingle extends ParserAbstractSingle {
 	 */
 	protected function readUserProfile() {
 		if (isset($this->Values['xxx39'])) {
-			$this->TrainingObject->setFitVdotEstimate(round((float)$this->Values['xxx39'][1] * 3.5, 2));
+			$this->TrainingObject->setFitVO2maxEstimate(round((float)$this->Values['xxx39'][1] * 3.5, 2));
 		}
 	}
 
@@ -406,10 +421,16 @@ class ParserFITSingle extends ParserAbstractSingle {
 	 * Read undocumented user data
 	 */
 	protected function readUndocumentedUserData() {
-		if (isset($this->Values['unknown0']) && $this->TrainingObject->getFitVdotEstimate() == 0) {
-			$this->TrainingObject->setFitVdotEstimate(round((int)$this->Values['unknown0'][1] * 3.5 / 1024, 2));
+		if (isset($this->Values['unknown0']) && $this->TrainingObject->getFitVO2maxEstimate() == 0) {
+			$this->TrainingObject->setFitVO2maxEstimate(round((int)$this->Values['unknown0'][1] * 3.5 / 1024, 2));
 		}
 	}
+
+	protected function readUndocumentedDataBlob140() {
+        if (isset($this->Values['unknown17']) && $this->TrainingObject->getFitPerformanceCondition()) {
+            $this->TrainingObject->setFitPerformanceConditionEnd(100 + (float)$this->Values['unknown17'][1]);
+        }
+    }
 
 	/**
 	 * Read event
@@ -418,7 +439,7 @@ class ParserFITSingle extends ParserAbstractSingle {
 		if (isset($this->Values['event']) && isset($this->Values['data'])) {
 			switch ((int)$this->Values['event'][1]) {
 				case 37:
-					$this->TrainingObject->setFitVdotEstimate((int)$this->Values['data'][1]);
+					$this->TrainingObject->setFitVO2maxEstimate((int)$this->Values['data'][1]);
 					return;
 
 				case 38:
@@ -432,7 +453,8 @@ class ParserFITSingle extends ParserAbstractSingle {
 					if (
                         substr($creator, 0, 5) == 'fr630' ||
 						substr($creator, 0, 7) == 'fr735xt' ||
-						substr($creator, 0, 6) == 'fenix3'
+						substr($creator, 0, 6) == 'fenix3' ||
+                        substr($creator, 0, 6) == 'fenix5'
 					) {
 					    if ((int)$this->Values['data'][1] >= 0 && (int)$this->Values['data'][1] <= 255) {
                             $this->TrainingObject->setFitPerformanceCondition((int)$this->Values['data'][1]);

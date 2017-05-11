@@ -108,34 +108,34 @@ class Entity extends Model\EntityWithID {
 	const HR_MAX = 'pulse_max';
 
 	/**
-	 * Key: vdot
+	 * Key: vo2max
 	 * @var string
 	 */
-	const VDOT = 'vdot';
+	const VO2MAX = 'vo2max';
 
 	/**
-	 * Key: vdot by time
+	 * Key: vo2max by time
 	 * @var string
 	 */
-	const VDOT_BY_TIME = 'vdot_by_time';
+	const VO2MAX_BY_TIME = 'vo2max_by_time';
 
 	/**
-	 * Key: vdot with elevation
+	 * Key: vo2max with elevation
 	 * @var string
 	 */
-	const VDOT_WITH_ELEVATION = 'vdot_with_elevation';
+	const VO2MAX_WITH_ELEVATION = 'vo2max_with_elevation';
 
 	/**
-	 * Key: use vdot
+	 * Key: use vo2max
 	 * @var string
 	 */
-	const USE_VDOT = 'use_vdot';
+	const USE_VO2MAX = 'use_vo2max';
 
 	/**
-	 * Key: vdot estimate from fit file
+	 * Key: vo2max estimate from fit file
 	 * @var string
 	 */
-	const FIT_VO2MAX_ESTIMATE = 'fit_vdot_estimate';
+	const FIT_VO2MAX_ESTIMATE = 'fit_vo2max_estimate';
 
 	/**
 	 * Key: recovery time from fit file
@@ -161,11 +161,11 @@ class Entity extends Model\EntityWithID {
 	 */
 	const FIT_PERFORMANCE_CONDITION = 'fit_performance_condition';
 
-	/**
-	 * Key: jd intensity
-	 * @var string
-	 */
-	const JD_INTENSITY = 'jd_intensity';
+    /**
+     * Key: performance condition from fit file
+     * @var string
+     */
+    const FIT_PERFORMANCE_CONDITION_END = 'fit_performance_condition_end';
 
 	/**
 	 * Key: RPE
@@ -301,10 +301,10 @@ class Entity extends Model\EntityWithID {
 	const SPLITS = 'splits';
 
 	/**
-	 * Key: comment
+	 * Key: title
 	 * @var string
 	 */
-	const COMMENT = 'comment';
+	const TITLE = 'title';
 
 	/**
 	 * Key: partner
@@ -382,17 +382,17 @@ class Entity extends Model\EntityWithID {
 			self::ENERGY,
 			self::HR_AVG,
 			self::HR_MAX,
-			self::VDOT,
-			self::VDOT_BY_TIME,
-			self::VDOT_WITH_ELEVATION,
-			self::USE_VDOT,
+			self::VO2MAX,
+			self::VO2MAX_BY_TIME,
+			self::VO2MAX_WITH_ELEVATION,
+			self::USE_VO2MAX,
 			self::FIT_VO2MAX_ESTIMATE,
 			self::FIT_RECOVERY_TIME,
 			self::FIT_HRV_ANALYSIS,
 			self::FIT_TRAINING_EFFECT,
 			self::FIT_PERFORMANCE_CONDITION,
-			self::JD_INTENSITY,
-			self::RPE,
+            self::FIT_PERFORMANCE_CONDITION_END,
+            self::RPE,
 			self::TRIMP,
 			self::CADENCE,
 			self::POWER,
@@ -414,7 +414,7 @@ class Entity extends Model\EntityWithID {
 			self::ROUTEID,
 			self::ROUTE,
 			self::SPLITS,
-			self::COMMENT,
+			self::TITLE,
 			self::PARTNER,
 			self::NOTES,
 			self::CREATOR,
@@ -470,15 +470,15 @@ class Entity extends Model\EntityWithID {
             case self::ENERGY:
             case self::HR_AVG:
             case self::HR_MAX:
-            case self::VDOT:
-            case self::VDOT_BY_TIME:
-            case self::VDOT_WITH_ELEVATION:
+            case self::VO2MAX:
+            case self::VO2MAX_BY_TIME:
+            case self::VO2MAX_WITH_ELEVATION:
             case self::FIT_VO2MAX_ESTIMATE:
             case self::FIT_RECOVERY_TIME:
             case self::FIT_HRV_ANALYSIS:
             case self::FIT_TRAINING_EFFECT:
             case self::FIT_PERFORMANCE_CONDITION:
-            case self::JD_INTENSITY:
+            case self::FIT_PERFORMANCE_CONDITION_END:
             case self::RPE:
             case self::TRIMP:
             case self::CADENCE:
@@ -532,15 +532,15 @@ class Entity extends Model\EntityWithID {
             self::ENERGY,
             self::HR_AVG,
             self::HR_MAX,
-            self::VDOT,
-            self::VDOT_BY_TIME,
-            self::VDOT_WITH_ELEVATION,
+            self::VO2MAX,
+            self::VO2MAX_BY_TIME,
+            self::VO2MAX_WITH_ELEVATION,
             self::FIT_VO2MAX_ESTIMATE,
             self::FIT_RECOVERY_TIME,
             self::FIT_HRV_ANALYSIS,
             self::FIT_TRAINING_EFFECT,
             self::FIT_PERFORMANCE_CONDITION,
-            self::JD_INTENSITY,
+            self::FIT_PERFORMANCE_CONDITION_END,
             self::RPE,
             self::TRIMP,
             self::CADENCE,
@@ -566,7 +566,7 @@ class Entity extends Model\EntityWithID {
 			self::IS_PUBLIC,
 			self::IS_TRACK,
 			self::TIME_IN_SECONDS,
-			self::USE_VDOT
+			self::USE_VO2MAX
 		));
 	}
 
@@ -693,40 +693,36 @@ class Entity extends Model\EntityWithID {
 	}
 
 	/**
-	 * VDOT by heart rate
-	 * @return null|float
+	 * @return null|float [ml/kg/min]
 	 */
-	public function vdotByHeartRate() {
-		return $this->Data[self::VDOT];
+	public function vo2maxByHeartRate() {
+		return $this->Data[self::VO2MAX];
 	}
 
 	/**
-	 * VDOT by time
-	 * @return null|float
+	 * @return null|float [ml/kg/min]
 	 */
-	public function vdotByTime() {
-		return $this->Data[self::VDOT_BY_TIME];
+	public function vo2maxByTime() {
+		return $this->Data[self::VO2MAX_BY_TIME];
 	}
 
 	/**
-	 * VDOT with elevation
-	 * @return null|float
+	 * @return null|float [ml/kg/min]
 	 */
-	public function vdotWithElevation() {
-		return $this->Data[self::VDOT_WITH_ELEVATION];
+	public function vo2maxWithElevation() {
+		return $this->Data[self::VO2MAX_WITH_ELEVATION];
 	}
 
 	/**
-	 * Uses VDOT for shape
-	 * @return boolean
+	 * @return bool
 	 */
-	public function usesVDOT() {
-		return ($this->Data[self::USE_VDOT] == 1);
+	public function usesVO2max() {
+		return ($this->Data[self::USE_VO2MAX] == 1);
 	}
 
 	/**
 	 * VO2max estimate from fit file
-	 * @return fnull|loat
+	 * @return null|float [ml/kg/min]
 	 */
 	public function fitVO2maxEstimate() {
 		return $this->Data[self::FIT_VO2MAX_ESTIMATE];
@@ -764,13 +760,13 @@ class Entity extends Model\EntityWithID {
 		return $this->Data[self::FIT_PERFORMANCE_CONDITION];
 	}
 
-	/**
-	 * JD intensity
-	 * @return null|int
-	 */
-	public function jdIntensity() {
-		return $this->Data[self::JD_INTENSITY];
-	}
+    /**
+     * Ending performance condition
+     * @return null|int
+     */
+    public function fitPerformanceConditionEnd() {
+        return $this->Data[self::FIT_PERFORMANCE_CONDITION_END];
+    }
 
 	/**
 	 * @return null|int
@@ -926,11 +922,11 @@ class Entity extends Model\EntityWithID {
 	}
 
 	/**
-	 * Comment
+	 * Title
 	 * @return string
 	 */
-	public function comment() {
-		return $this->Data[self::COMMENT];
+	public function title() {
+		return $this->Data[self::TITLE];
 	}
 
 	/**
@@ -957,9 +953,8 @@ class Entity extends Model\EntityWithID {
 	 * Unset running values
 	 */
 	public function unsetRunningValues() {
-		$this->set(Entity::VDOT_BY_TIME, null);
-		$this->set(Entity::VDOT, null);
-		$this->set(Entity::VDOT_WITH_ELEVATION, null);
-		$this->set(Entity::JD_INTENSITY, null);
+		$this->set(Entity::VO2MAX_BY_TIME, null);
+		$this->set(Entity::VO2MAX, null);
+		$this->set(Entity::VO2MAX_WITH_ELEVATION, null);
 	}
 }

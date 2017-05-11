@@ -36,11 +36,6 @@ abstract class PlotSumData extends Plot {
 	const ANALYSIS_TRIMP = 'trimp';
 
 	/**
-	 * @var string
-	 */
-	const ANALYSIS_JD = 'jd';
-
-	/**
 	 * URL to window
 	 * @var string
 	 */
@@ -207,20 +202,14 @@ abstract class PlotSumData extends Plot {
 	private function getMenuLinksForAnalysis() {
 		if ($this->Analysis == self::ANALYSIS_DEFAULT) {
 			$Current = __('Distance/Duration');
-		} elseif ($this->Analysis == self::ANALYSIS_TRIMP) {
-			$Current = __('TRIMP');
 		} else {
-			$Current = __('JD points');
+			$Current = __('TRIMP');
 		}
 
 		$Links = array(
 			$this->link( __('Distance/Duration'), $this->Year, Request::param('sportid'), Request::param('group'), $this->Analysis == self::ANALYSIS_DEFAULT, self::ANALYSIS_DEFAULT),
 			$this->link( __('TRIMP'), $this->Year, Request::param('sportid'), Request::param('group'), $this->Analysis == self::ANALYSIS_TRIMP, self::ANALYSIS_TRIMP)
 		);
-
-		if ($this->Sport->isRunning()) {
-			$Links[] = $this->link( __('JD points'), $this->Year, $this->Sport->id(), Request::param('group'), $this->Analysis == self::ANALYSIS_JD, self::ANALYSIS_JD);
-		}
 
 		return ['title' => $Current, 'links' => $Links];
 	}
@@ -330,9 +319,24 @@ abstract class PlotSumData extends Plot {
 	 */
 	private function init() {
 		$this->initData();
+		$this->adjustDataForUnit();
 		$this->setAxis();
 		$this->setOptions();
 	}
+
+	protected function adjustDataForUnit() {
+	    if (self::ANALYSIS_DEFAULT == $this->Analysis && $this->usesDistance) {
+	        $factor = Configuration::General()->distanceUnitSystem()->distanceToPreferredUnitFactor();
+
+	        if (1 != $factor) {
+	            foreach ($this->Data as $index => $plotData) {
+	                $this->Data[$index]['data'] = array_map(function ($v) use ($factor) {
+                        return $v * $factor;
+                    }, $this->Data[$index]['data']);
+                }
+            }
+        }
+    }
 
 	/**
 	 * Set axis
@@ -385,9 +389,7 @@ abstract class PlotSumData extends Plot {
 	private function defineAnalysis() {
 		$request = Request::param('analysis');
 
-		if ($request == self::ANALYSIS_JD && $this->Sport->isRunning()) {
-			$this->Analysis = self::ANALYSIS_JD;
-		} elseif ($request == self::ANALYSIS_TRIMP) {
+		if ($request == self::ANALYSIS_TRIMP) {
 			$this->Analysis = self::ANALYSIS_TRIMP;
 		} else {
 			$this->Analysis = self::ANALYSIS_DEFAULT;
@@ -434,7 +436,7 @@ abstract class PlotSumData extends Plot {
 	/**
 	 * @return string
 	 */
-	private function whereDate() {
+	protected function whereDate() {
 		if (is_numeric($this->Year)) {
 			return '`time` BETWEEN UNIX_TIMESTAMP(\''.(int)$this->Year.'-01-01\') AND UNIX_TIMESTAMP(\''.((int)$this->Year+1).'-01-01\')-1';
 		} elseif ($this->Year == self::LAST_6_MONTHS) {
@@ -459,9 +461,7 @@ abstract class PlotSumData extends Plot {
 	 * @return string
 	 */
 	private function dataSum() {
-		if ($this->Analysis == self::ANALYSIS_JD) {
-			return 'SUM(`jd_intensity`)';
-		} elseif ($this->Analysis == self::ANALYSIS_TRIMP) {
+		if ($this->Analysis == self::ANALYSIS_TRIMP) {
 			return 'SUM(`trimp`)';
 		} elseif ($this->usesDistance) {
 			return 'SUM(`distance`)';
@@ -556,8 +556,8 @@ abstract class PlotSumData extends Plot {
 		}
 
 		foreach ($this->RawData as $dat)
-			if ($dat['timer'] >= $this->timerStart && $dat['timer'] <= $this->timerEnd && isset($Types[$dat['typeid']]))
-				$Types[$dat['typeid']]['data'][$dat['timer']-$this->timerStart] = $dat['sum'];
+			if ($dat['timer'] >= $this->timerStart && $dat['timer'] <= $this->timerEnd)
+				$Types[isset($Types[$dat['typeid']]) ? $dat['typeid'] : 0]['data'][$dat['timer']-$this->timerStart] = $dat['sum'];
 
 		foreach ($Types as $Type)
 			$this->Data[] = array('label' => $Type['name'], 'data' => $Type['data']);
@@ -661,7 +661,7 @@ abstract class PlotSumData extends Plot {
 			$BasicEndurance = new BasicEndurance();
 			$BasicEndurance->readSettingsFromConfiguration();
 
-			echo HTML::info( __('Target is based on current basic endurance calculations.') );
+			echo HTML::info( __('Target is based on current marathon shape calculations.') );
 		}
 	}
 }

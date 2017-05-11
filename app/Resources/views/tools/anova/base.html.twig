@@ -31,7 +31,7 @@
 
                 <div class="w100 with33erLabel">
                     <label for="anova_sport">
-                        {% trans %}Sport type{% endtrans %}
+                        {% trans %}Sport{% endtrans %}
                         <span class="right small">
                             <span class="link chosen-select-all" data-target="anova_sport">{% trans %}all{% endtrans %}</span> |
                             <span class="link chosen-select-none" data-target="anova_sport">{% trans %}none{% endtrans %}</span>&nbsp;
@@ -63,6 +63,19 @@
         {{ form_end(form) }}
 
         <div id="anova-plot"></div>
+
+        <p id="anova-info" class="info small">
+            {% trans %}
+            Values are visualized with so-called 'box plots'.
+            They give an impression of how values of a group are distributed.
+            The middle 50% of all values are within the box itself and the so-called whiskers have a length of at most 1.5-times the interquartile range (i.e. the box's width).
+            Data points outside this range are called outliers.
+            {% endtrans %}
+            <br>
+            {% trans %}This way of presentation allows to compare not only average values (e.g. pace over months) but deviations and outliers between different groupings.{% endtrans %}
+            <br>
+            {% trans %}For a detailed explanation of box plots, see <a href="https://en.wikipedia.org/wiki/Box_plot">Wikipedia</a>.{% endtrans %}
+        </p>
 
         <script>
             var $plot = $("#anova-plot");

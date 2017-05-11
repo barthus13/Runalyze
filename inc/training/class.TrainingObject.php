@@ -66,7 +66,7 @@ class TrainingObject extends DataObject {
 			return;
 
 		$Location = new \Runalyze\Data\Weather\Location();
-		$Location->setTimestamp($this->getTimestamp());
+		$Location->setDateTime($this->getDateTime());
 		$Location->setLocationName(Configuration::ActivityForm()->weatherLocation());
 
 		if ($this->hasPositionData()) {
@@ -84,6 +84,19 @@ class TrainingObject extends DataObject {
 		$this->set('humidity', $Weather->humidity()->value());
 		$this->set('pressure', $Weather->pressure()->value());
 		$this->set('weather_source', $Weather->source());
+	}
+
+	/**
+	 * @return \DateTime
+	 */
+	protected function getDateTime() {
+		if (null === $this->getTimezoneOffset()) {
+			$dateTime = (new LocalTime($this->getTimestamp()))->toServerTime();
+		} else {
+			$dateTime = new \DateTime('@'.($this->getTimestamp() - 60 * $this->getTimezoneOffset()));
+		}
+
+		return $dateTime;
 	}
 
 	/**
@@ -185,6 +198,96 @@ class TrainingObject extends DataObject {
 			$InserterHRV->insert();
 		}
 	}
+
+    /**
+     * Insert object to database
+     */
+    public function mergeInto(Runalyze\Model\Activity\Entity $otherActivity, $accountId) {
+        $DB = DB::getInstance();
+        $Route = $this->newRouteObject();
+        $Trackdata = $this->newTrackdataObject();
+        $Swimdata = $this->newSwimObject();
+
+        $oldRoute = (new Runalyze\Model\Factory($accountId))->route($otherActivity->get('routeid'));
+
+        if ($oldRoute->isEmpty()) {
+            if ($Route->name() != '' || $Route->hasPositionData() || $Route->hasElevations()) {
+                $InserterRoute = new Runalyze\Model\Route\Inserter($DB, $Route);
+                $InserterRoute->setAccountID($accountId);
+                $InserterRoute->insert();
+
+                $this->forceToSet('routeid', $InserterRoute->insertedID());
+
+                if ($this->getElevation() == 0) {
+                    $this->setElevation($Route->elevation());
+                }
+            }
+        } else {
+            $Route->setID($oldRoute->id());
+            $Route->set('name', $oldRoute->name());
+            $Route->set('cities', $oldRoute->name());
+            $routeUpdater = new Runalyze\Model\Route\Updater($DB, $Route, $oldRoute);
+            $routeUpdater->setAccountID($accountId);
+            $routeUpdater->update();
+
+            if ($this->getElevation() == 0) {
+                $this->setElevation($Route->elevation());
+            }
+        }
+
+        $this->setSportid($otherActivity->sportid());
+        $newActivity = $this->newActivityObject();
+        $newActivityInserter = new Runalyze\Model\Activity\Inserter($DB, $newActivity);
+        $newActivityInserter->setAccountID($accountId);
+        $newActivityInserter->setRoute($Route);
+        $newActivityInserter->setTrackdata($Trackdata);
+        $newActivityInserter->setSwimdata($Swimdata);
+        $newActivityInserter->before();
+
+        $newActivity->setID($otherActivity->id());
+        $newActivity->set('created', $otherActivity->get('created'));
+        $newActivity->weather()->condition()->set($otherActivity->weather()->condition()->id());
+        $newActivity->weather()->temperature()->setTemperature($otherActivity->weather()->temperature()->value());
+        $newActivity->synchronize();
+
+        foreach ($newActivity->properties() as $key) {
+            if (!$newActivity->has($key) && $otherActivity->has($key)) {
+                if ('partner' == $key) {
+                    $newActivity->partner()->fromString($otherActivity->partner()->asString());
+                } else {
+                    $newActivity->set($key, $otherActivity->get($key));
+                }
+            }
+        }
+
+        $activityUpdater = new Runalyze\Model\Activity\Updater($DB, $newActivity, $otherActivity);
+        $activityUpdater->setAccountID($accountId);
+        $activityUpdater->setTrackdata($Trackdata);
+        $activityUpdater->setRoute($Route);
+        $activityUpdater->update();
+
+        if ($this->hasArrayTime() || $this->hasArrayDistance() || $this->hasArrayHeartrate()) {
+            $Trackdata->set(Runalyze\Model\Trackdata\Entity::ACTIVITYID, $otherActivity->id());
+            $InserterTrack = new Runalyze\Model\Trackdata\Inserter($DB, $Trackdata);
+            $InserterTrack->setAccountID($accountId);
+            $InserterTrack->insert();
+        }
+
+        if ($this->hasArrayStroke() || $this->hasArrayStrokeType() ) {
+            $Swimdata->set(Runalyze\Model\Swimdata\Entity::ACTIVITYID, $otherActivity->id());
+            $InserterSwim = new Runalyze\Model\Swimdata\Inserter($DB, $Swimdata);
+            $InserterSwim->setAccountID($accountId);
+            $InserterSwim->insert();
+        }
+
+        if ($this->hasArrayHRV()) {
+            $HRV = $this->newHRVObject();
+            $HRV->set(Runalyze\Model\HRV\Entity::ACTIVITYID, $otherActivity->id());
+            $InserterHRV = new Runalyze\Model\HRV\Inserter($DB, $HRV);
+            $InserterHRV->setAccountID($accountId);
+            $InserterHRV->insert();
+        }
+    }
 
 	/**
 	 * @return \Runalyze\Model\Activity\Entity
@@ -650,55 +753,8 @@ class TrainingObject extends DataObject {
 	public function getPulseMax() { return $this->get('pulse_max'); }
 
 
-	/**
-	 * Get uncorrected VDOT
-	 *
-	 * This value is calculated by heartrate and pace without any correction.
-	 * @return double uncorrected vdot
-	 */
-	public function getVdotUncorrected() { return $this->get('vdot'); }
-	/**
-	 * Get corrected VDOT
-	 *
-	 * This value is calculated by heartrate and pace and corrected by
-	 * the user defined/calculated correction factor.
-	 * @return double corrected vdot
-	 */
-	public function getVdotCorrected() { return round(Configuration::Data()->vdotFactor()*$this->getVdotUncorrected(), 2); }
-	/**
-	 * Get VDOT by time
-	 *
-	 * This value is calculated by distance and time without any influence by heartrate.
-	 * @return double vdot by time
-	 */
-	public function getVdotByTime() { return $this->get('vdot_by_time'); }
-	/**
-	 * Get VDOT with elevation
-	 * @return double vdot with elevation influence
-	 */
-	public function getVdotWithElevation() { return $this->get('vdot_with_elevation'); }
-	/**
-	 * Get VDOT with elevation corrected
-	 * @return double vdot with elevation influence
-	 */
-	public function getVdotWithElevationCorrected() { return round(Configuration::Data()->vdotFactor()*$this->getVdotWithElevation(), 2); }
-	/**
-	 * Get VDOT with elevation
-	 * @return double vdot with elevation influence
-	 */
-	public function getCurrentlyUsedVdot() { return (Configuration::Vdot()->useElevationCorrection() && $this->getVdotWithElevation() > 0 ? $this->getVdotWithElevationCorrected() : $this->getVdotCorrected()); }
-
-
-	/**
-	 * Used for vdot?
-	 *
-	 * A user can decide if we wants a training to be used for vdot-shape-calculation.
-	 * @return bool True if user wants this training to influence vdot-shape.
-	 */
-	public function usedForVdot() { return $this->get('use_vdot') == 1; }
-
-	public function setFitVdotEstimate($vdot) { $this->set('fit_vdot_estimate', $vdot); }
-	public function getFitVdotEstimate() { return $this->get('fit_vdot_estimate'); }
+	public function setFitVO2maxEstimate($vo2max) { $this->set('fit_vo2max_estimate', $vo2max); }
+	public function getFitVO2maxEstimate() { return $this->get('fit_vo2max_estimate'); }
 
 	public function setFitRecoveryTime($minutes) { $this->set('fit_recovery_time', $minutes); }
 	public function getFitRecoveryTime() { return $this->get('fit_recovery_time'); }
@@ -712,30 +768,8 @@ class TrainingObject extends DataObject {
 	public function setFitPerformanceCondition($value) { $this->set('fit_performance_condition', $value); }
 	public function getFitPerformanceCondition() { return $this->get('fit_performance_condition'); }
 
-
-	/**
-	 * Get JD intensity
-	 * @return int jd intensity
-	 */
-	public function getJDintensity() { return $this->get('jd_intensity'); }
-
-	/**
-	 * Set rpe
-	 * @param int $rpe rpe
-	 */
-	public function setRPE($rpe) { $this->set('rpe', $rpe); }
-	/**
-	 * Get rpe
-	 * @return int rpe value
-	 */
-	public function getRPE() { return $this->get('rpe'); }
-
-
-	/**
-	 * Get trimp
-	 * @return int trimp value
-	 */
-	public function getTrimp() { return $this->get('trimp'); }
+    public function setFitPerformanceConditionEnd($value) { $this->set('fit_performance_condition_end', $value); }
+    public function getFitPerformanceConditionEnd() { return $this->get('fit_performance_condition_end'); }
 
 
 	/**
@@ -848,20 +882,20 @@ class TrainingObject extends DataObject {
 
 
 	/**
-	 * Set comment
-	 * @param string $comment comment
+	 * Set title
+	 * @param string $title title
 	 */
-	public function setComment($comment) { $this->set('comment', $comment); }
+	public function setTitle($title) { $this->set('title', $title); }
 	/**
-	 * Get comment
-	 * @return string comment
+	 * Get title
+	 * @return string title
 	 */
-	public function getComment() { return $this->get('comment'); }
+	public function getTitle() { return $this->get('title'); }
 	/**
-	 * Has comment?
+	 * Has title?
 	 * @return bool
 	 */
-	public function hasComment() { return strlen($this->get('comment')) > 0; }
+	public function hasTitle() { return strlen($this->get('title')) > 0; }
 
 	/**
 	 * Set total strokes

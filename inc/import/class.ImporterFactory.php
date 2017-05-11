@@ -105,7 +105,7 @@ class ImporterFactory {
 
 	/**
 	 * Get training objects
-	 * @return array
+	 * @return TrainingObject[]
 	 */
 	public function trainingObjects() {
 		return $this->TrainingObjects;
@@ -121,7 +121,7 @@ class ImporterFactory {
 
 	/**
 	 * Add objects
-	 * @param array[TrainingObject] $TrainingObjects
+	 * @param TrainingObject[] $TrainingObjects
 	 */
 	protected function addObjects(array $TrainingObjects) {
 		$this->TrainingObjects = array_merge($this->TrainingObjects, $TrainingObjects);
@@ -280,7 +280,7 @@ class ImporterFactory {
 		$this->Filename = ImporterUpload::relativePath($filename);
 		$extension      = Filesystem::extensionOfFile($this->Filename);
 
-		if (!file_exists($this->Filename)) {
+		if (!file_exists(FRONTEND_PATH.$this->Filename)) {
 			$this->throwNonExistingFile($filename);
 		} elseif (self::canImportExtension($extension)) {
 			$this->importWithClass(self::classFor($extension));

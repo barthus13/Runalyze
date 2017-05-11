@@ -4,7 +4,9 @@ namespace Runalyze\Bundle\CoreBundle\Controller;
 
 use Runalyze\Bundle\CoreBundle\Entity\Account;
 use Runalyze\Bundle\CoreBundle\Entity\Training;
+use Runalyze\Export\Share\Facebook;
 use Runalyze\View\Activity\Context;
+use Runalyze\View\Activity\Linker;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -27,6 +29,9 @@ class SharedController extends Controller
         }
 
         $_GET['user'] = $activity->getAccount()->getUsername();
+        $account = $this->getDoctrine()->getRepository('CoreBundle:Account')->findByUsername($activity->getAccount()->getUsername());
+        $publicList = $this->get('app.configuration_manager')->getList($account)->getPrivacy()->isListPublic();
+
         $Frontend = new \FrontendShared(true);
         $activityContext = $this->get('app.activity_context.factory')->getContext($activity->getId(), $activity->getAccount()->getId());
         $activityContextLegacy = new Context($activity->getId(), $activity->getAccount()->getId());
@@ -36,6 +41,7 @@ class SharedController extends Controller
         if ('iframe' == $request->query->get('mode')) {
             return $this->render('shared/widget/iframe/base.html.twig', [
                 'username' => $activity->getAccount()->getUsername(),
+                'hasPublicList' => $publicList,
                 'context' => $activityContext,
                 'route' => $hasRoute ? new \Runalyze\View\Leaflet\Activity(
                     'route-'.$activity->getId(),
@@ -47,6 +53,11 @@ class SharedController extends Controller
 
         return $this->render('shared/activity/base.html.twig', [
             'username' => $activity->getAccount()->getUsername(),
+            'activity' => $activity,
+            'hasPublicList' => $publicList,
+            'activityUrl' => (new Linker($activityContextLegacy->activity()))->publicUrl(),
+            'activityHasRoute' => $hasRoute,
+            'metaTitle' => (new Facebook($activityContextLegacy))->metaTitle(),
             'view' => new \TrainingView($activityContextLegacy)
         ]);
     }

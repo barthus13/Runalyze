@@ -8,6 +8,8 @@ use Runalyze\Calculation\Distribution\TrackdataAverages;
 use Runalyze\Configuration;
 use Runalyze\Import\Exception\UnexpectedContentException;
 use Runalyze\Model\Trackdata;
+use Runalyze\Profile\Sport\Mapping\EnglishLanguageMapping;
+use Runalyze\Profile\Sport\SportProfile;
 use Runalyze\Util\LocalTime;
 use Runalyze\Util\TimezoneLookup;
 
@@ -164,15 +166,63 @@ abstract class ParserAbstractSingle extends ParserAbstract {
 		return LocalTime::fromString($string)->getTimestamp();
 	}
 
+    /**
+     * @param int $sportEnum
+     * @param \Runalyze\Profile\Mapping\ToInternalMappingInterface|null $mapping
+     * @return bool
+     */
+    protected function setSportTypeFromEnumIfAvailable($sportEnum, \Runalyze\Profile\Mapping\ToInternalMappingInterface $mapping = null) {
+        if (null !== $mapping) {
+            $sportEnum = $mapping->toInternal($sportEnum);
+        }
+
+        foreach (\Runalyze\Context::Factory()->allSports() as $sport) {
+            if ($sport->getInternalProfileEnum() == $sportEnum) {
+                $this->TrainingObject->setSportid($sport->id());
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param string $sportName
+     * @param \Runalyze\Profile\Mapping\ToInternalMappingInterface $mapping
+     * @return bool
+     */
+    protected function guessSportTypeFromStringIfAvailable($sportName, \Runalyze\Profile\Mapping\ToInternalMappingInterface $mapping) {
+	    $sportEnum = $mapping->toInternal($sportName);
+
+        if (SportProfile::GENERIC !== $sportEnum) {
+	        foreach (\Runalyze\Context::Factory()->allSports() as $sport) {
+	            if ($sport->getInternalProfileEnum() == $sportEnum) {
+	                $this->TrainingObject->setSportid($sport->id());
+
+	                return true;
+	            }
+	        }
+
+            return true;
+        }
+
+        return false;
+    }
+
 	/**
 	 * Try to set sportid from creator or string
 	 * @param string $String
 	 * @param string $Creator optional
 	 */
 	protected function guessSportID($String, $Creator = '') {
+        if ($this->guessSportTypeFromStringIfAvailable($String, new EnglishLanguageMapping())) {
+            return;
+        }
+
         $this->TrainingObject->setSportid(Configuration::General()->mainSport());
 
-        $name = array();
+        $name = array($String);
 		// TODO: internationalization?
 		switch (mb_strtolower($Creator)) {
 			case 'garmin swim':
@@ -183,7 +233,6 @@ abstract class ParserAbstractSingle extends ParserAbstract {
 					case 'run':
 					case 'running':
 						$name[] = 'Laufen';
-                        $name[] = 'Laufband';
                         $name[] = 'Corriendo';
                         $name[] = 'Running';
                         $name[] = 'In esecuzione';
@@ -278,6 +327,7 @@ abstract class ParserAbstractSingle extends ParserAbstract {
         foreach ( \Runalyze\Context::Factory()->allSports() as $sport ) {
             if ( in_array( strtolower( $sport->name() ), $name) ) {
                 $this->TrainingObject->setSportid($sport->id());
+                return;
             }
         }
 	}
@@ -477,17 +527,23 @@ abstract class ParserAbstractSingle extends ParserAbstract {
 			$num = count($this->gps['latitude']);
 			$this->gps['km'] = array(0);
 			$lastDistance = 0;
+			$lastValidIndex = 0;
 
 			for ($i = 1; $i < $num; ++$i) {
-				$step = round(
-					Runalyze\Model\Route\Entity::gpsDistance(
-						$this->gps['latitude'][$i-1],
-						$this->gps['longitude'][$i-1],
-						$this->gps['latitude'][$i],
-						$this->gps['longitude'][$i]
-					),
-					ParserAbstract::DISTANCE_PRECISION
-				);
+			    if ($this->gps['latitude'][$i] != 0.0 || $this->gps['longitude'][$i] != 0.0) {
+                    $step = round(
+                        Runalyze\Model\Route\Entity::gpsDistance(
+                            $this->gps['latitude'][$lastValidIndex],
+                            $this->gps['longitude'][$lastValidIndex],
+                            $this->gps['latitude'][$i],
+                            $this->gps['longitude'][$i]
+                        ),
+                        ParserAbstract::DISTANCE_PRECISION
+                    );
+                    $lastValidIndex = $i;
+                } else {
+			        $step = 0.0;
+                }
 
 				$this->gps['km'][] = $lastDistance + $step;
 				$lastDistance += $step;

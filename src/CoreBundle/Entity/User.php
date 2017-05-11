@@ -1,19 +1,21 @@
 <?php
+
 namespace Runalyze\Bundle\CoreBundle\Entity;
 
-
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * User
  *
- * @ORM\Table(name="user", indexes={@ORM\Index(name="time", columns={"accountid", "time"}), @ORM\Index(name="accountid", columns={"accountid"})})
- * @ORM\Entity
+ * @ORM\Table(name="user", indexes={@ORM\Index(name="accountid_time", columns={"accountid", "time"})})
+ * @ORM\Entity(repositoryClass="Runalyze\Bundle\CoreBundle\Entity\UserRepository")
+ * @ORM\EntityListeners({"Runalyze\Bundle\CoreBundle\EventListener\UserEntityListener"})
  */
 class User
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer", nullable=false, options={"unsigned":true})
      * @ORM\Id
@@ -22,63 +24,70 @@ class User
     private $id;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="time", type="integer", precision=11, nullable=false, options={"unsigned":true})
      */
     private $time;
 
     /**
-     * @var string
+     * @var float|null [kg]
      *
      * @ORM\Column(name="weight", type="decimal", precision=5, scale=2, nullable=true, options={"unsigned":true})
      */
     private $weight;
 
     /**
-     * @var integer
+     * @var int|null [bpm]
      *
-     * @ORM\Column(name="pulse_rest", columnDefinition="tinyint(3) unsigned DEFAULT NULL")
+     * @ORM\Column(name="pulse_rest", columnDefinition="tinyint unsigned DEFAULT NULL")
      */
     private $pulseRest;
 
     /**
-     * @var integer
+     * @var int|null [bpm]
      *
-     * @ORM\Column(name="pulse_max", columnDefinition="tinyint(3) unsigned DEFAULT NULL")
+     * @ORM\Column(name="pulse_max", columnDefinition="tinyint unsigned DEFAULT NULL")
      */
     private $pulseMax;
 
     /**
-     * @var string
-     *
+     * @var float|null [%]
+     * @Assert\Range(
+     *     min = 0,
+     *     max = 100)
      * @ORM\Column(name="fat", type="decimal", precision=3, scale=1, nullable=true)
      */
     private $fat;
 
     /**
-     * @var string
-     *
+     * @var float|null [%]
+     * @Assert\Range(
+     *     min = 0,
+     *     max = 100)
      * @ORM\Column(name="water", type="decimal", precision=3, scale=1, nullable=true)
      */
     private $water;
 
     /**
-     * @var string
+     * @var float|null [%]
      *
+     * @Assert\Range(
+     *     min = 0,
+     *     max = 100)
      * @ORM\Column(name="muscles", type="decimal", precision=3, scale=1, nullable=true)
      */
     private $muscles;
 
     /**
-     * @var integer
+     * @var int|null [min]
      *
      * @ORM\Column(name="sleep_duration", type="smallint", precision=3, nullable=true, options={"unsigned":true})
      */
     private $sleepDuration;
 
     /**
-     * @var string
+     * @var string|null
      *
      * @ORM\Column(name="notes", type="text", length=65535, nullable=true)
      */
@@ -94,10 +103,13 @@ class User
      */
     private $account;
 
+    public function __clone() {
+        $this->id = null;
+        $this->notes = '';
+    }
+
     /**
-     * Get id
-     *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -105,11 +117,9 @@ class User
     }
 
     /**
-     * Set time
+     * @param int $time
      *
-     * @param string $time
-     *
-     * @return User
+     * @return $this
      */
     public function setTime($time)
     {
@@ -119,9 +129,17 @@ class User
     }
 
     /**
-     * Get time
-     *
-     * @return string
+     * @return $this
+     */
+    public function setCurrentTimestamp()
+    {
+        $this->time = time();
+
+        return $this;
+    }
+
+    /**
+     * @return int
      */
     public function getTime()
     {
@@ -129,11 +147,9 @@ class User
     }
 
     /**
-     * Set weight
+     * @param float|null $weight [kg]
      *
-     * @param string $weight
-     *
-     * @return User
+     * @return $this
      */
     public function setWeight($weight)
     {
@@ -143,9 +159,7 @@ class User
     }
 
     /**
-     * Get weight
-     *
-     * @return string
+     * @return float|null [kg]
      */
     public function getWeight()
     {
@@ -153,11 +167,9 @@ class User
     }
 
     /**
-     * Set pulseRest
+     * @param int|null $pulseRest [bpm]
      *
-     * @param string $pulseRest
-     *
-     * @return User
+     * @return $this
      */
     public function setPulseRest($pulseRest)
     {
@@ -167,9 +179,7 @@ class User
     }
 
     /**
-     * Get pulseRest
-     *
-     * @return string
+     * @return int|null [bpm]
      */
     public function getPulseRest()
     {
@@ -177,11 +187,9 @@ class User
     }
 
     /**
-     * Set pulseMax
+     * @param int|null $pulseMax [bpm]
      *
-     * @param string $pulseMax
-     *
-     * @return User
+     * @return $this
      */
     public function setPulseMax($pulseMax)
     {
@@ -191,9 +199,7 @@ class User
     }
 
     /**
-     * Get pulseMax
-     *
-     * @return string
+     * @return int|null [bpm]
      */
     public function getPulseMax()
     {
@@ -201,11 +207,9 @@ class User
     }
 
     /**
-     * Set fat
+     * @param float|null $fat [%]
      *
-     * @param string $fat
-     *
-     * @return User
+     * @return $this
      */
     public function setFat($fat)
     {
@@ -215,9 +219,7 @@ class User
     }
 
     /**
-     * Get fat
-     *
-     * @return string
+     * @return float|null [%]
      */
     public function getFat()
     {
@@ -225,11 +227,9 @@ class User
     }
 
     /**
-     * Set water
+     * @param float|null $water [%]
      *
-     * @param string $water
-     *
-     * @return User
+     * @return $this
      */
     public function setWater($water)
     {
@@ -239,9 +239,7 @@ class User
     }
 
     /**
-     * Get water
-     *
-     * @return string
+     * @return float|null [%]
      */
     public function getWater()
     {
@@ -249,11 +247,9 @@ class User
     }
 
     /**
-     * Set muscles
+     * @param float|null $muscles [%]
      *
-     * @param string $muscles
-     *
-     * @return User
+     * @return $this
      */
     public function setMuscles($muscles)
     {
@@ -263,9 +259,7 @@ class User
     }
 
     /**
-     * Get muscles
-     *
-     * @return string
+     * @return float|null [%]
      */
     public function getMuscles()
     {
@@ -273,11 +267,9 @@ class User
     }
 
     /**
-     * Set sleepDuration
+     * @param int|null $sleepDuration [min]
      *
-     * @param string $sleepDuration
-     *
-     * @return User
+     * @return $this
      */
     public function setSleepDuration($sleepDuration)
     {
@@ -287,9 +279,7 @@ class User
     }
 
     /**
-     * Get sleepDuration
-     *
-     * @return string
+     * @return int|null [min]
      */
     public function getSleepDuration()
     {
@@ -297,11 +287,9 @@ class User
     }
 
     /**
-     * Set notes
+     * @param string|null $notes
      *
-     * @param string $notes
-     *
-     * @return User
+     * @return $this
      */
     public function setNotes($notes)
     {
@@ -311,9 +299,7 @@ class User
     }
 
     /**
-     * Get notes
-     *
-     * @return string
+     * @return string|null
      */
     public function getNotes()
     {
@@ -321,13 +307,11 @@ class User
     }
 
     /**
-     * Set account
+     * @param Account $account
      *
-     * @param \Runalyze\Bundle\CoreBundle\Entity\Account $account
-     *
-     * @return Sport
+     * @return $this
      */
-    public function setAccount(\Runalyze\Bundle\CoreBundle\Entity\Account $account = null)
+    public function setAccount(Account $account)
     {
         $this->account = $account;
 
@@ -335,12 +319,26 @@ class User
     }
 
     /**
-     * Get account
-     *
-     * @return \Runalyze\Bundle\CoreBundle\Entity\Account
+     * @return Account
      */
     public function getAccount()
     {
         return $this->account;
+    }
+
+    /**
+     * @return User
+     */
+    public function cloneObjectForForm()
+    {
+        return (new User())
+            ->setAccount($this->account)
+            ->setCurrentTimestamp()
+            ->setPulseMax($this->pulseMax)
+            ->setPulseRest($this->pulseRest)
+            ->setWeight($this->weight)
+            ->setMuscles($this->muscles)
+            ->setFat($this->fat)
+            ->setWater($this->water);
     }
 }

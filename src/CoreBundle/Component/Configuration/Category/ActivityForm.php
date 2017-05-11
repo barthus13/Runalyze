@@ -11,7 +11,6 @@ class ActivityForm extends AbstractCategory
     {
         return [
             'TRAINING_CREATE_MODE' => 'upload',
-            'TRAINING_SHOW_AFTER_CREATE' => 'false',
             'TRAINING_DO_ELEVATION' => 'true',
             'TRAINING_LOAD_WEATHER' => 'true',
             'PLZ' => '',
@@ -33,6 +32,22 @@ class ActivityForm extends AbstractCategory
             'FORMULAR_SHOW_ELEVATION' => 'false',
             'FORMULAR_SHOW_GPS' => 'false',
         ];
+    }
+
+    /**
+     * @return bool
+     */
+    public function isComputingEnergyActivated()
+    {
+        return 'true' === $this->Variables['COMPUTE_KCAL'];
+    }
+
+    /**
+     * @return bool
+     */
+    public function isComputingPowerActivated()
+    {
+        return 'true' === $this->Variables['COMPUTE_POWER'];
     }
 
     /**

@@ -9,6 +9,16 @@ services:
     arguments: ['@security.token_storage']
     tags:
       - { name: controller.argument_value_resolver, priority: 50 }
+  app.listener.console_exception:
+    class: Runalyze\Bundle\CoreBundle\EventListener\ConsoleExceptionListener
+    arguments: ['@monolog.logger.console']
+    tags:
+      - { name: kernel.event_listener, event: console.exception }
+  app.listener.console_error_status:
+    class: Runalyze\Bundle\CoreBundle\EventListener\ConsoleErrorStatusListener
+    arguments: ['@monolog.logger.console']
+    tags:
+      - { name: kernel.event_listener, event: console.terminate }
   app.locale_listener:
     class: Runalyze\Bundle\CoreBundle\EventListener\LocaleListener
     arguments: ['%kernel.default_locale%']
@@ -54,17 +64,75 @@ services:
     class: Runalyze\Bundle\CoreBundle\Entity\EquipmentTypeRepository
     factory: ["@doctrine.orm.entity_manager", getRepository]
     arguments: [Runalyze\Bundle\CoreBundle\Entity\EquipmentType]
+  app.repository.notification:
+    class: Runalyze\Bundle\CoreBundle\Entity\NotificationRepository
+    factory: ["@doctrine.orm.entity_manager", getRepository]
+    arguments: [Runalyze\Bundle\CoreBundle\Entity\Notification]
+  app.repository.race_result:
+    class: Runalyze\Bundle\CoreBundle\Entity\RaceresultRepository
+    factory: ["@doctrine.orm.entity_manager", getRepository]
+    arguments: [Runalyze\Bundle\CoreBundle\Entity\Raceresult]
   app.repository.sport:
     class: Runalyze\Bundle\CoreBundle\Entity\SportRepository
     factory: ["@doctrine.orm.entity_manager", getRepository]
     arguments: [Runalyze\Bundle\CoreBundle\Entity\Sport]
+  app.repository.type:
+    class: Runalyze\Bundle\CoreBundle\Entity\TypeRepository
+    factory: ["@doctrine.orm.entity_manager", getRepository]
+    arguments: [Runalyze\Bundle\CoreBundle\Entity\Type]
+  app.repository.training:
+    class: Runalyze\Bundle\CoreBundle\Entity\TrainingRepository
+    factory: ["@doctrine.orm.entity_manager", getRepository]
+    arguments: [Runalyze\Bundle\CoreBundle\Entity\Training]
+  app.repository.user:
+    class: Runalyze\Bundle\CoreBundle\Entity\UserRepository
+    factory: ["@doctrine.orm.entity_manager", getRepository]
+    arguments: [Runalyze\Bundle\CoreBundle\Entity\User]
+  app.entity_listener.user:
+    class: Runalyze\Bundle\CoreBundle\EventListener\UserEntityListener
+    tags:
+     - { name: doctrine.orm.entity_listener }
   app.form.type.anova:
     class: Runalyze\Bundle\CoreBundle\Form\Tools\Anova\AnovaType
     arguments: ["@app.repository.sport", "@app.repository.equipment_type", "@security.token_storage"]
     tags:
      - { name: form.type }
+  app.form.type.poster:
+    class: Runalyze\Bundle\CoreBundle\Form\Tools\PosterType
+    arguments: ["@app.repository.sport", "@app.repository.training", "@security.token_storage"]
+    tags:
+     - { name: form.type }
+  app.form.type.poster:
+    class: Runalyze\Bundle\CoreBundle\Form\EquipmentType
+    arguments: ["@app.repository.equipment_type","@security.token_storage"]
+    tags:
+     - { name: form.type }
+  app.form.type.equipment:
+    class: Runalyze\Bundle\CoreBundle\Form\EquipmentType
+    arguments: ["@app.repository.equipment_type", "@security.token_storage"]
+    tags:
+     - { name: form.type }
+  app.form.type.equipment_category:
+    class: Runalyze\Bundle\CoreBundle\Form\EquipmentCategoryType
+    arguments: ["@app.repository.sport", "@security.token_storage"]
+    tags:
+     - { name: form.type }
+  app.form.type.sport:
+    class: Runalyze\Bundle\CoreBundle\Form\Settings\SportType
+    arguments: ["@app.repository.type", "@app.repository.sport", "@app.repository.equipment_type", "@security.token_storage"]
+    tags:
+     - { name: form.type }
+  app.form.type.sport_type:
+    class: Runalyze\Bundle\CoreBundle\Form\Settings\SportTypeType
+    arguments: ["@security.token_storage"]
+    tags:
+     - { name: form.type }
   app.form.type.race_result:
     class: Runalyze\Bundle\CoreBundle\Form\RaceResultType
+    tags:
+     - { name: form.type }
+  app.form.type.body_values:
+    class: Runalyze\Bundle\CoreBundle\Form\BodyValuesType
     tags:
      - { name: form.type }
   app.form.type.distance:
@@ -77,16 +145,23 @@ services:
     arguments: ["@app.configuration_manager"]
     tags:
      - { name: form.type }
+  app.form.type.energy_kcal:
+    class: Runalyze\Bundle\CoreBundle\Form\Type\EnergyKcalType
+    tags:
+     - { name: form.type }
   app.form.type.temperature:
     class: Runalyze\Bundle\CoreBundle\Form\Type\TemperatureType
-    arguments: ["@app.configuration_manager"]
+    arguments: ["@app.unit_system.temperature"]
     tags:
      - { name: form.type }
   app.form.type.weight:
     class: Runalyze\Bundle\CoreBundle\Form\Type\WeightType
-    arguments: ["@app.configuration_manager"]
+    arguments: ["@app.unit_system.weight"]
     tags:
      - { name: form.type }
+  app.automatic_reload_flag_setter:
+    class: Runalyze\Bundle\CoreBundle\Services\AutomaticReloadFlagSetter
+    arguments: ["@session.flash_bag"]
   app.privacy_guard:
     class: Runalyze\Bundle\CoreBundle\Services\PrivacyGuard
     arguments: ["@security.token_storage", "@app.configuration_manager"]
@@ -96,6 +171,9 @@ services:
   app.configuration_manager:
     class: Runalyze\Bundle\CoreBundle\Services\Configuration\ConfigurationManager
     arguments: ["@app.repository.conf", "@security.token_storage"]
+  app.configuration_updater:
+    class: Runalyze\Bundle\CoreBundle\Services\Configuration\ConfigurationUpdater
+    arguments: ["@app.repository.conf"]
   app.sport_selection_factory:
     class: Runalyze\Bundle\CoreBundle\Services\Selection\SportSelectionFactory
     arguments: ["@app.repository.sport", "@app.configuration_manager", "@security.token_storage"]
@@ -139,6 +217,35 @@ services:
     arguments: ["@app.configuration_manager"]
     tags:
       - { name: twig.extension }
+  app.twig_automatic_reload_flag_extension:
+    class: Runalyze\Bundle\CoreBundle\Twig\AutomaticReloadFlagExtension
+    public: false
+    tags:
+      - { name: twig.extension }
+  app.poster.generate_json:
+    class: Runalyze\Bundle\CoreBundle\Component\Tool\Poster\GenerateJsonData
+    arguments: ["@app.repository.training", "@app.repository.race_result", "%kernel.root_dir%"]
+  app.poster.generate_poster:
+    class: Runalyze\Bundle\CoreBundle\Component\Tool\Poster\GeneratePoster
+    arguments: ["%kernel.root_dir%", "%python3_path%", "@app.repository.training"]
+  app.poster.availability:
+    class: Runalyze\Bundle\CoreBundle\Component\Tool\Poster\Availability
+    arguments: ["%rsvg_path%", "%inkscape_path%", "%python3_path%"]
+  app.poster.filehandler:
+    class: Runalyze\Bundle\CoreBundle\Component\Tool\Poster\FileHandler
+    arguments: ["%kernel.root_dir%"]
+  app.bernard.backup_receiver:
+    class: Runalyze\Bundle\CoreBundle\Queue\Receiver\BackupReceiver
+    arguments:
+      container: "@service_container"
+    tags:
+      - { name: bernard.receiver, message: userBackup }
+  app.bernard.poster_receiver:
+    class: Runalyze\Bundle\CoreBundle\Queue\Receiver\PosterReceiver
+    arguments: ["@monolog.logger.queue", "@app.repository.account", "@app.repository.sport", "@app.repository.notification", "@app.poster.generate_json", "@app.poster.generate_poster", "@app.poster.filehandler", "@app.mailer.account", "%kernel.root_dir%", "%rsvg_path%", "%inkscape_path%"]
+    tags:
+      - { name: bernard.receiver, message: posterGenerator }
+
   app.user_provider:
     class: Runalyze\Bundle\CoreBundle\Provider\AccountProvider
     arguments: ['@app.repository.account']

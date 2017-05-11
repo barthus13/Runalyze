@@ -16,8 +16,13 @@ parameters:
   darksky_api_key:
   nokia_here_appid:
   nokia_here_token:
+  thunderforest_api_key:
+  mapbox_api_key:
   geonames_username:
   perl_path: /usr/bin/perl
+  python3_path: /usr/bin/python3
+  rsvg_path: /usr/bin/rsvg-convert
+  inkscape_path: /usr/bin/inkscape
   ttbin_path: ../call/perl/ttbincnv
   sqlite_mod_spatialite: libspatialite.so.5
   mail_sender:
@@ -27,3 +32,8 @@ parameters:
   smtp_security:
   smtp_username:
   smtp_password:
+  backup_storage_period: 5
+  poster_storage_period: 5
+  router.request_context.host: localhost
+  router.request_context.scheme: http
+  router.request_context.base_url:

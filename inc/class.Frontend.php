@@ -33,12 +33,6 @@ class Frontend {
 	protected $symfonyToken = null;
 
 	/**
-	 * Admin password as md5
-	 * @var string
-	 */
-	protected $adminPassAsMD5 = '';
-
-	/**
 	 * Yaml Configuration
 	 * @var array
 	 */
@@ -110,11 +104,14 @@ class Frontend {
         define('OPENWEATHERMAP_API_KEY', $this->yamlConfig['openweathermap_api_key']);
 	    define('NOKIA_HERE_APPID', $this->yamlConfig['nokia_here_appid']);
 	    define('NOKIA_HERE_TOKEN', $this->yamlConfig['nokia_here_token']);
+	    define('THUNDERFOREST_API_KEY', $this->yamlConfig['thunderforest_api_key']);
+        define('MAPBOX_API_KEY', $this->yamlConfig['mapbox_api_key']);
 	    define('PERL_PATH', $this->yamlConfig['perl_path']);
 	    define('TTBIN_PATH', $this->yamlConfig['ttbin_path']);
 	    define('GEONAMES_USERNAME', $this->yamlConfig['geonames_username']);
 	    define('USER_DISABLE_ACCOUNT_ACTIVATION', $this->yamlConfig['user_disable_account_activation']);
 	    define('SQLITE_MOD_SPATIALITE', $this->yamlConfig['sqlite_mod_spatialite']);
+        define('RUNALYZE_VERSION', $this->yamlConfig['RUNALYZE_VERSION']);
 	}
 
 	/**
@@ -146,7 +143,7 @@ class Frontend {
 
 		Configuration::loadAll();
 
-		\Runalyze\Calculation\JD\VDOTCorrector::setGlobalFactor( Configuration::Data()->vdotFactor() );
+		\Runalyze\Calculation\JD\LegacyEffectiveVO2maxCorrector::setGlobalFactor( Configuration::Data()->vo2maxCorrectionFactor() );
 
 		require_once FRONTEND_PATH.'class.Helper.php';
 	}
@@ -162,19 +159,9 @@ class Frontend {
 	 * Connect to database
 	 */
 	private function initDatabase() {
-		$this->adminPassAsMD5 = md5($this->yamlConfig['database_password']);
-
 		define('PREFIX', $this->yamlConfig['database_prefix']);
 
 		DB::connect($this->yamlConfig['database_host'], $this->yamlConfig['database_port'], $this->yamlConfig['database_user'], $this->yamlConfig['database_password'], $this->yamlConfig['database_name']);
-	}
-
-	/**
-	 * Display admin view
-	 */
-	public function displayAdminView() {
-		$AdminView = new AdminView($this->adminPassAsMD5);
-		$AdminView->display();
 	}
 
 	/**
@@ -213,8 +200,6 @@ class Frontend {
 
 		if (!Request::isAjax() && !isset($_GET['hideHtmlHeader']))
 			include 'tpl/tpl.Frontend.header.php';
-
-		Error::getInstance()->header_sent = true;
 	}
 
 	/**

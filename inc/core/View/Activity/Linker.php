@@ -71,33 +71,29 @@ class Linker {
 	}
 
 	/**
-	 * Get link with comment as text
-	 * @return string HTML-link to this training
-	 */
-	public function linkWithComment() {
-		if ($this->Activity->comment() != '') {
-			return $this->link($this->Activity->comment());
-		}
-
-		return $this->link('<em>'.__('unknown').'</em>');
-	}
-
-	/**
 	 * Get link with icon as text
 	 * @param string $tooltipCssClass optional, e.g. 'atRight'
 	 * @return string HTML-link to this training
 	 */
 	public function linkWithSportIcon($tooltipCssClass = '') {
+		return $this->link($this->codeWithSportIcon($tooltipCssClass));
+	}
+
+	/**
+	 * @param string $tooltipCssClass optional, e.g. 'atRight'
+	 * @return string HTML-code that can be linked to this training
+	 */
+	public function codeWithSportIcon($tooltipCssClass = '') {
 		$Time = new Duration($this->Activity->duration());
 		$Factory = new \Runalyze\Model\Factory(\SessionAccountHandler::getId());
 		$Sport = $Factory->sport($this->Activity->sportid());
 		$code = $Sport->icon()->code();
 
-		$Tooltip = new \Runalyze\View\Tooltip($Sport->name().': '.$Time->string());
+		$Tooltip = new \Runalyze\View\Tooltip($Sport->name().(!$Time->isZero() ? ': '.$Time->string() : ''));
 		$Tooltip->setPosition($tooltipCssClass);
 		$Tooltip->wrapAround($code);
 
-		return $this->link($code);
+		return $code;
 	}
 
 	/**
@@ -144,12 +140,12 @@ class Linker {
 	}
 
 	/**
-	 * URL to vdot info
+	 * URL to vo2max info
 	 * @param string $data
 	 * @return string
 	 */
-	public function urlToVDOTinfo($data = '') {
-		return 'activity/'.$this->Activity->id().'/vdot-info'.($data != '' ? '?'.$data : '');
+	public function urlToVO2maxinfo($data = '') {
+		return 'activity/'.$this->Activity->id().'/vo2max-info'.($data != '' ? '?'.$data : '');
 	}
 
 	/**

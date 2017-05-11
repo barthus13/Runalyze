@@ -1,6 +1,7 @@
 {% extends "shared/base.html.twig" %}
 
 {% set body_attributes = ' id="shared"' %}
+{% set page_title = 'Athlete'|trans ~ ': ' ~ account.username ~ ' | RUNALYZE' %}
 
 {% block content %}
 
@@ -67,6 +68,6 @@
                 </p>
             </div>
         </div>
-    {% endif %}>
+    {% endif %}
 
 {% endblock %}

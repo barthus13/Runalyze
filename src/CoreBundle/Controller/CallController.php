@@ -53,18 +53,6 @@ class CallController extends Controller
     }
 
     /**
-     * @Route("/call/call.MetaCourse.php")
-     */
-    public function metaCourseAction() {
-        $Frontend = new \FrontendShared(true);
-
-        $Meta = new \HTMLMetaForFacebook();
-        $Meta->displayCourse();
-
-        return new Response();
-    }
-
-    /**
      * @Route("/settings", name="settings")
      * @Security("has_role('ROLE_USER')")
      */
@@ -73,10 +61,6 @@ class CallController extends Controller
         $ConfigTabs = new \ConfigTabs();
         $ConfigTabs->addDefaultTab(new  \ConfigTabGeneral());
         $ConfigTabs->addTab(new \ConfigTabPlugins());
-        $ConfigTabs->addTab(new \ConfigTabDataset());
-        $ConfigTabs->addTab(new \ConfigTabSports());
-        $ConfigTabs->addTab(new \ConfigTabTypes());
-        $ConfigTabs->addTab(new \ConfigTabEquipment());
         $ConfigTabs->display();
 
         echo \Ajax::wrapJSforDocumentReady('Runalyze.Overlay.removeClasses();');

@@ -78,7 +78,6 @@ class ActivityForm extends \Runalyze\Configuration\Category {
 	 */
 	private function createHandlesForSettings() {
 		$this->createHandle('TRAINING_CREATE_MODE', new ActivityCreationMode());
-		$this->createHandle('TRAINING_SHOW_AFTER_CREATE', new Boolean(false));
 		$this->createHandle('TRAINING_DO_ELEVATION', new Boolean(true));
 		$this->createHandle('TRAINING_LOAD_WEATHER', new Boolean(true));
 		$this->createHandle('PLZ', new Textline(''));
@@ -97,14 +96,6 @@ class ActivityForm extends \Runalyze\Configuration\Category {
 	 */
 	public function creationMode() {
 		return $this->object('TRAINING_CREATE_MODE');
-	}
-
-	/**
-	 * Show activity after creation?
-	 * @return bool
-	 */
-	public function showActivity() {
-		return $this->get('TRAINING_SHOW_AFTER_CREATE');
 	}
 
 	/**
@@ -207,10 +198,6 @@ class ActivityForm extends \Runalyze\Configuration\Category {
 			'label'		=> __('Default window')
 		));
 
-		$Fieldset->addHandle( $this->handle('TRAINING_SHOW_AFTER_CREATE'), array(
-			'label'		=> __('Show activity after creation')
-		));
-
 		$Fieldset->addHandle( $this->handle('COMPUTE_KCAL'), array(
 			'label'		=> __('Calculate energy'),
 			'tooltip'	=> __('Recalculate energy after changing duration by hand')
@@ -267,7 +254,7 @@ class ActivityForm extends \Runalyze\Configuration\Category {
 	 */
 	private function addHandlesForSortingTo(Fieldset $Fieldset) {
 		$Fieldset->addHandle( $this->handle('TRAINING_SORT_SPORTS'), array(
-			'label'		=> __('Sort: sport types')
+			'label'		=> __('Sort: sports')
 		));
 
 		$Fieldset->addHandle( $this->handle('TRAINING_SORT_TYPES'), array(

@@ -11,8 +11,8 @@ use Runalyze\Metrics\Distance\Unit\AbstractDistanceUnit;
 use Runalyze\Metrics\Energy\Unit\AbstractEnergyUnit;
 use Runalyze\Metrics\HeartRate\Unit\AbstractHeartRateUnit;
 use Runalyze\Metrics\HeartRate\Unit\AbstractHeartRateUnitInPercent;
-use Runalyze\Metrics\Pace\Unit\AbstractPaceInTimeFormatUnit;
-use Runalyze\Metrics\Pace\Unit\AbstractPaceUnit;
+use Runalyze\Metrics\Velocity\Unit\AbstractPaceInTimeFormatUnit;
+use Runalyze\Metrics\Velocity\Unit\AbstractPaceUnit;
 use Runalyze\Metrics\Temperature\Unit\AbstractTemperatureUnit;
 use Runalyze\Metrics\Weight\Unit\AbstractWeightUnit;
 
@@ -57,8 +57,8 @@ class ValueExtension extends \Twig_Extension
             new \Twig_SimpleFunction('paceComparison', array($this, 'paceComparison'), $safeHtmlOptions),
             new \Twig_SimpleFunction('temperature', array($this, 'temperature'), $safeHtmlOptions),
             new \Twig_SimpleFunction('weight', array($this, 'weight'), $safeHtmlOptions),
-            new \Twig_SimpleFunction('vdot', array($this, 'vdot'), $safeHtmlOptions),
-            new \Twig_SimpleFunction('vdotFor', array($this, 'vdotFor'), $safeHtmlOptions),
+            new \Twig_SimpleFunction('vo2max', array($this, 'vo2max'), $safeHtmlOptions),
+            new \Twig_SimpleFunction('vo2maxFor', array($this, 'vo2maxFor'), $safeHtmlOptions),
         );
     }
 
@@ -213,25 +213,25 @@ class ValueExtension extends \Twig_Extension
     /**
      * @param float $uncorrectedValue
      * @param RunalyzeConfigurationList $configurationList
-     * @param bool $vdotIsUsedForShape
-     * @return DisplayableVdot
+     * @param bool $valueIsUsedForShape
+     * @return DisplayableVO2max
      */
-    public function vdot($uncorrectedValue, RunalyzeConfigurationList $configurationList, $vdotIsUsedForShape = true)
+    public function vo2max($uncorrectedValue, RunalyzeConfigurationList $configurationList, $valueIsUsedForShape = true)
     {
-        return new DisplayableVdot($uncorrectedValue, $configurationList, $vdotIsUsedForShape);
+        return new DisplayableVO2max($uncorrectedValue, $configurationList, $valueIsUsedForShape);
     }
 
     /**
      * @param ActivityContext $activityContext
      * @param RunalyzeConfigurationList $configurationList
-     * @return DisplayableVdot
+     * @return DisplayableVO2max
      */
-    public function vdotFor(ActivityContext $activityContext, RunalyzeConfigurationList $configurationList)
+    public function vo2maxFor(ActivityContext $activityContext, RunalyzeConfigurationList $configurationList)
     {
-        return $this->vdot(
-            $activityContext->getDecorator()->getUncorrectedVdot($configurationList),
+        return $this->vo2max(
+            $activityContext->getDecorator()->getUncorrectedVO2max($configurationList),
             $configurationList,
-            $activityContext->getActivity()->getUseVdot()
+            $activityContext->getActivity()->getUseVO2max()
         );
     }
 }

@@ -99,7 +99,7 @@ class ImporterFiletypeFITTest extends PHPUnit_Framework_TestCase {
 
 			$this->assertFalse( $this->object->object()->Splits()->areEmpty() );
 
-			$this->assertEquals( 53, $this->object->object()->getFitVdotEstimate() );
+			$this->assertEquals( 53, $this->object->object()->getFitVO2maxEstimate() );
 			$this->assertEquals( 816, $this->object->object()->getFitRecoveryTime() );
 			$this->assertEquals( 0, $this->object->object()->getFitHRVscore() );
 		}
@@ -139,7 +139,7 @@ class ImporterFiletypeFITTest extends PHPUnit_Framework_TestCase {
 
 			$this->assertEquals( 46*60 + 50, $this->object->object()->getArrayTimeLastPoint(), '', 5 );
 
-			$this->assertEquals( 65, $this->object->object()->getFitVdotEstimate() );
+			$this->assertEquals( 65, $this->object->object()->getFitVO2maxEstimate() );
 			$this->assertEquals( 932, $this->object->object()->getFitRecoveryTime() );
 			$this->assertEquals( 0, $this->object->object()->getFitHRVscore() );
 
@@ -416,7 +416,7 @@ class ImporterFiletypeFITTest extends PHPUnit_Framework_TestCase {
 			$this->assertTrue($this->object->object()->hasArrayPower());
 
 			// Read from undocumented block NUMBER=79
-			$this->assertEquals(47.64, $this->object->object()->getFitVdotEstimate());
+			$this->assertEquals(47.64, $this->object->object()->getFitVO2maxEstimate());
 		}
 	}
 
@@ -620,6 +620,7 @@ class ImporterFiletypeFITTest extends PHPUnit_Framework_TestCase {
 
 			$this->assertEquals(null, $this->object->object()->getFitTrainingEffect());
 			$this->assertEquals(null, $this->object->object()->getFitPerformanceCondition());
+            $this->assertEquals(null, $this->object->object()->getFitPerformanceConditionEnd());
 
 			$this->assertTrue($this->object->object()->hasArrayTime());
 			$this->assertTrue($this->object->object()->hasArrayDistance());
@@ -646,7 +647,7 @@ class ImporterFiletypeFITTest extends PHPUnit_Framework_TestCase {
 			$this->assertEquals(819, $this->object->object()->getArrayTimeLastPoint(), '', 10);
 			$this->assertEquals(2.029, $this->object->object()->getDistance(), '', 0.01);
 
-			$this->assertEquals(40.62, $this->object->object()->getFitVdotEstimate());
+			$this->assertEquals(40.62, $this->object->object()->getFitVO2maxEstimate());
 			$this->assertEquals(1307, $this->object->object()->getFitRecoveryTime());
 			$this->assertEquals(3.2, $this->object->object()->getFitTrainingEffect());
 
@@ -654,6 +655,7 @@ class ImporterFiletypeFITTest extends PHPUnit_Framework_TestCase {
 			$this->assertEquals(0, $this->object->object()->getFitHRVscore());
 			$this->assertEquals('fr630', $this->object->object()->getCreator());
 			$this->assertEquals(100, $this->object->object()->getFitPerformanceCondition());
+            $this->assertEquals(98, $this->object->object()->getFitPerformanceConditionEnd());
 
 			// New values for later on:
 			//  - lactate threshold: 163 bpm / 2.583 m/s
@@ -882,7 +884,7 @@ class ImporterFiletypeFITTest extends PHPUnit_Framework_TestCase {
 			);
 		}
 	}
-	
+
 	public function testDeveloperFieldsInNewFormatFromMoxy() {
 		if (Shell::isPerlAvailable()) {
 			$this->object->parseFile('../tests/testfiles/fit/moxy-float.fit');
@@ -901,4 +903,16 @@ class ImporterFiletypeFITTest extends PHPUnit_Framework_TestCase {
         	);
 		}
 	}
+
+    /**
+     * @see https://github.com/Runalyze/Runalyze/issues/2066
+     */
+    public function testThatZerosInCadenceAreIgnoredForAverage() {
+        if (Shell::isPerlAvailable()) {
+            $this->object->parseFile('../tests/testfiles/fit/IPBike-cadence.fit');
+
+            $this->assertTrue($this->object->object()->hasArrayCadence());
+            $this->assertEquals(76, $this->object->object()->getCadence());
+        }
+    }
 }

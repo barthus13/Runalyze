@@ -6,8 +6,8 @@ use Runalyze\Bundle\CoreBundle\Entity\Sport;
 use Runalyze\Metrics\Cadence;
 use Runalyze\Metrics\Distance;
 use Runalyze\Metrics\LegacyUnitConverter;
-use Runalyze\Metrics\Pace\Unit\AbstractPaceUnit;
-use Runalyze\Metrics\Pace\Unit\KilometerPerHour;
+use Runalyze\Metrics\Velocity\Unit\AbstractPaceUnit;
+use Runalyze\Metrics\Velocity\Unit\KilometerPerHour;
 use Runalyze\Parameter\Application\DistanceUnitSystem;
 
 class UnitSystem
@@ -30,7 +30,7 @@ class UnitSystem
 
     public function setPaceUnitFromSport(Sport $sport)
     {
-        $this->PaceUnit = $this->LegacyUnitConverter->getPaceUnit($sport->getSpeed());
+        $this->PaceUnit = $sport->getSpeedUnit();
     }
 
     public function setPaceUnit(AbstractPaceUnit $paceUnit)
@@ -44,7 +44,7 @@ class UnitSystem
     public function getPaceUnit(Sport $sport = null)
     {
         if (null !== $sport) {
-            return $this->LegacyUnitConverter->getPaceUnit($sport->getSpeed());
+            return $sport->getSpeedUnit();
         }
 
         return $this->PaceUnit;

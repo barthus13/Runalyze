@@ -2,9 +2,12 @@
     "name": "runalyze/runalyze",
     "description": "RUNALYZE - training analysis for athletes",
     "homepage": "https://runalyze.com",
+    "version": "4.0.0",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "require": {
         "php": "~5.6|~7.0",
-        "symfony/symfony": "3.1.*",
+        "symfony/symfony": "3.2.*",
         "sensio/framework-extra-bundle": "^3.0",
         "twig/twig": "1.*",
         "monolog/monolog": "^1.19",
@@ -23,7 +26,10 @@
         "symfony/swiftmailer-bundle": "^2.3",
         "beberlei/DoctrineExtensions": "~1.0",
         "jms/translation-bundle": "dev-master",
-        "friendsofsymfony/oauth-server-bundle": "dev-master"
+        "friendsofsymfony/oauth-server-bundle": "dev-master",
+        "jms/translation-bundle": "dev-master",
+        "bernard/bernard-bundle": "^2.0.0",
+        "runalyze/GpxTrackPoster": "^1.0.0"
     },
     "autoload": {
         "files": ["src/functions.php", "app/AppKernel.php"],
@@ -32,11 +38,28 @@
         "psr-4": {
             "DoctrineExtensions\\": "vendor/beberlei/DoctrineExtensions/src",
             "Runalyze\\": "inc/core/",
+            "Runalyze\\Bundle\\CoreBundle\\Tests\\": "tests/CoreBundle",
             "Runalyze\\Bundle\\": "src/",
             "Runalyze\\Tests\\": "tests/inc/core/"
         }
     },
     "require-dev": {
-        "phpunit/phpunit": "4.8.*"
-    }
+        "phpunit/phpunit": "4.8.*",
+        "runalyze/playground": "dev-master",
+        "liip/functional-test-bundle": "^1.7",
+        "doctrine/doctrine-fixtures-bundle": "^2.3"
+    },
+    "repositories": [
+        {
+            "type": "package",
+            "package": {
+                "name": "runalyze/GpxTrackPoster",
+                "version": "1.0.2",
+                "source": {
+                    "url": "https://github.com/laufhannes/GpxTrackPoster.git",
+                    "type": "git",
+                    "reference": "8b337ca89e1cf9552dc0bbb08d8b81bc55335c45"
+                }
+            }
+        }]
 }

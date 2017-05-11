@@ -24,12 +24,17 @@ class AppKernel extends \Symfony\Component\HttpKernel\Kernel
             new \Symfony\Bundle\SwiftmailerBundle\SwiftmailerBundle(),
             new Runalyze\Bundle\CoreBundle\CoreBundle(),
             new JMS\TranslationBundle\JMSTranslationBundle(),
+            new Bernard\BernardBundle\BernardBundle(),
             new FOS\OAuthServerBundle\FOSOAuthServerBundle(),
         ];
 
         if ('dev' == $this->getEnvironment()) {
             $bundles[] = new Symfony\Bundle\WebProfilerBundle\WebProfilerBundle();
             $bundles[] = new Symfony\Bundle\DebugBundle\DebugBundle();
+            $bundles[] = new Runalyze\Bundle\PlaygroundBundle\PlaygroundBundle();
+        } elseif ('test' == substr($this->getEnvironment(), 0, 4)) {
+            $bundles[] = new Doctrine\Bundle\FixturesBundle\DoctrineFixturesBundle();
+            $bundles[] = new Liip\FunctionalTestBundle\LiipFunctionalTestBundle();
         }
 
         return $bundles;
@@ -49,16 +54,17 @@ class AppKernel extends \Symfony\Component\HttpKernel\Kernel
      */
     protected function configureRoutes(RouteCollectionBuilder $routes)
     {
-        if (in_array($this->getEnvironment(), array('dev', 'test'), true)) {
-            $routes->mount('/_wdt', $routes->import('@WebProfilerBundle/Resources/config/routing/wdt.xml'));
-            $routes->mount('/_profiler', $routes->import('@WebProfilerBundle/Resources/config/routing/profiler.xml'));
-    	    $routes->mount('/_error', $routes->import('@TwigBundle/Resources/config/routing/errors.xml'));
-            $routes->mount('', $routes->import('@FOSOAuthServerBundle/Resources/config/routing/token.xml'));
-            $routes->mount('', $routes->import('@FOSOAuthServerBundle/Resources/config/routing/authorize.xml'));
+        if (in_array($this->getEnvironment(), array('dev'), true)) {
+            $routes->import('@WebProfilerBundle/Resources/config/routing/wdt.xml', '/_wdt');
+            $routes->import('@WebProfilerBundle/Resources/config/routing/profiler.xml', '/_profiler');
+    	    $routes->import('@TwigBundle/Resources/config/routing/errors.xml', '/_error');
             $routes->add('/_trans', '@JMSTranslationBundle/Controller/TranslateController');
+            $routes->import('@FOSOAuthServerBundle/Resources/config/routing/token.xml');
+            $routes->import('@FOSOAuthServerBundle/Resources/config/routing/authorize.xml');
+            $routes->import('@PlaygroundBundle/Resources/config/routing.yml', '/_playground');
     	}
 
-        $routes->mount('/', $routes->import('@CoreBundle/Controller', 'annotation'));
+        $routes->import('@CoreBundle/Controller', '/', 'annotation');
     }
 
     /**

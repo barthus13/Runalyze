@@ -74,7 +74,7 @@ $currentWeek = null;
 $currentMonth = null;
 foreach ($this->Days as $i => $day) {
 	$trClass = '';
-	$week = (int)\Runalyze\Configuration::General()->weekStart()->phpWeek($day['date']);
+	$week = (int)\Runalyze\Configuration::General()->weekStart()->phpWeek($day['date'], true);
 	$month = (int)LocalTime::date('n', $day['date']);
 
 	if ($i > 0 && $week != $currentWeek) {
@@ -105,7 +105,12 @@ foreach ($this->Days as $i => $day) {
 
 				foreach ($day['shorts'] as $short) {
 					$Context->setActivityData($short);
-					echo $Table->codeForShortLink($Context);
+
+					if (FrontendShared::$IS_SHOWN && !$Context->activity()->isPublic()) {
+                        echo $Table->codeForShortLink($Context);
+                    } else {
+                        echo '<span class="link" '.Ajax::trainingLinkAsOnclick($Context->activity()->id()).'>'.$Table->codeForShortLink($Context).'</span>';
+                    }
 				}
 
 				echo '</td><td class="l as-small-as-possible">'.$this->dateString($day['date']).'</td>';
@@ -127,8 +132,13 @@ foreach ($this->Days as $i => $day) {
 				<td class="l" style="width:24px;">';
 
 		foreach ($day['shorts'] as $short) {
-			$Context->setActivityData($short);
-			echo $Table->codeForShortLink($Context);
+            $Context->setActivityData($short);
+
+            if (FrontendShared::$IS_SHOWN && !$Context->activity()->isPublic()) {
+                echo $Table->codeForShortLink($Context);
+            } else {
+                echo '<span class="link" '.Ajax::trainingLinkAsOnclick($Context->activity()->id()).'>'.$Table->codeForShortLink($Context).'</span>';
+            }
 		}
 
 		$cols = $Table->numColumns();

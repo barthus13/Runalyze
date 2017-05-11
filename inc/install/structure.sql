@@ -189,7 +189,7 @@ CREATE TABLE IF NOT EXISTS `runalyze_hrv` (
 CREATE TABLE IF NOT EXISTS `runalyze_plugin` (
 `id` int(10) unsigned NOT NULL,
   `key` varchar(100) NOT NULL,
-  `type` enum('panel','stat','tool') NOT NULL DEFAULT 'stat',
+  `type` varchar(5) NOT NULL DEFAULT 'stat',
   `active` tinyint(1) unsigned NOT NULL DEFAULT '1',
   `order` tinyint unsigned NOT NULL DEFAULT '0',
   `accountid` int(10) unsigned NOT NULL
@@ -254,6 +254,8 @@ CREATE TABLE IF NOT EXISTS `runalyze_sport` (
   `outside` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `main_equipmenttypeid` int(10) unsigned DEFAULT NULL,
   `default_typeid` int(10) unsigned DEFAULT NULL,
+  `is_main` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `internal_sport_id` tinyint(4) DEFAULT NULL,
   `accountid` int(10) unsigned NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -319,16 +321,16 @@ CREATE TABLE IF NOT EXISTS `runalyze_training` (
   `kcal` smallint unsigned DEFAULT NULL,
   `pulse_avg` tinyint unsigned DEFAULT NULL,
   `pulse_max` tinyint unsigned DEFAULT NULL,
-  `vdot` decimal(5,2) unsigned DEFAULT NULL,
-  `vdot_by_time` decimal(5,2) unsigned DEFAULT NULL,
-  `vdot_with_elevation` decimal(5,2) unsigned DEFAULT NULL,
-  `use_vdot` tinyint(1) unsigned NOT NULL DEFAULT '1',
-  `fit_vdot_estimate` decimal(4,2) unsigned DEFAULT NULL,
+  `vo2max` decimal(5,2) unsigned DEFAULT NULL,
+  `vo2max_by_time` decimal(5,2) unsigned DEFAULT NULL,
+  `vo2max_with_elevation` decimal(5,2) unsigned DEFAULT NULL,
+  `use_vo2max` tinyint(1) unsigned NOT NULL DEFAULT '1',
+  `fit_vo2max_estimate` decimal(4,2) unsigned DEFAULT NULL,
   `fit_recovery_time` smallint(5) unsigned DEFAULT NULL,
   `fit_hrv_analysis` smallint(5) unsigned DEFAULT NULL,
   `fit_training_effect` decimal(2,1) unsigned DEFAULT NULL,
   `fit_performance_condition` tinyint(3) unsigned DEFAULT NULL,
-  `jd_intensity` smallint(4) unsigned DEFAULT NULL,
+  `fit_performance_condition_end` tinyint(3) unsigned DEFAULT NULL,
   `rpe` tinyint(2) unsigned DEFAULT NULL,
   `trimp` smallint unsigned DEFAULT NULL,
   `cadence` int(3) unsigned DEFAULT NULL,
@@ -351,7 +353,7 @@ CREATE TABLE IF NOT EXISTS `runalyze_training` (
   `route` text,
   `routeid` int(10) unsigned DEFAULT NULL,
   `splits` mediumtext,
-  `comment` text,
+  `title` text,
   `partner` text,
   `notes` text,
   `accountid` int(10) unsigned NOT NULL,
@@ -440,6 +442,47 @@ CREATE TABLE IF NOT EXISTS `runalyze_raceresult` (
 -- --------------------------------------------------------
 
 --
+-- Tabellenstruktur für Tabelle `bernard_messages`
+--
+
+CREATE TABLE IF NOT EXISTS `bernard_messages` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `queue` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `message` longtext COLLATE utf8_unicode_ci NOT NULL,
+  `visible` tinyint(1) NOT NULL DEFAULT '1',
+  `sentAt` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `IDX_28999D87FFD7F635BADAD2C7AB0E859` (`queue`,`sentAt`,`visible`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Tabellenstruktur für Tabelle `bernard_queues`
+--
+
+CREATE TABLE IF NOT EXISTS `bernard_queues` (
+  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `runalyze_notification`
+--
+CREATE TABLE IF NOT EXISTS `runalyze_notification` (
+  `id` INT UNSIGNED AUTO_INCREMENT NOT NULL,
+  `messageType`  tinyint unsigned NOT NULL,
+  `createdAt` int(10) unsigned NOT NULL,
+  `expirationAt` int(10) unsigned DEFAULT NULL,
+  `data` TINYTEXT NOT NULL,
+  `wasRead` tinyint(1) unsigned NOT NULL DEFAULT 0,
+  `account_id` INT UNSIGNED NOT NULL,
+  INDEX IDX_F99B51889B6B5FBA (account_id),
+  PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB;
+
+-- --------------------------------------------------------
+
+--
 -- Indizes der exportierten Tabellen
 --
 
@@ -466,6 +509,7 @@ ALTER TABLE `runalyze_conf`
 --
 ALTER TABLE `runalyze_dataset`
  ADD PRIMARY KEY (`accountid`,`keyid`), ADD KEY `position` (`accountid`,`position`);
+CREATE UNIQUE INDEX unique_key ON runalyze_dataset (accountid, keyid);
 
 --
 -- Indizes für die Tabelle `runalyze_equipment`
@@ -715,3 +759,9 @@ ADD CONSTRAINT `runalyze_trackdata_ibfk_2` FOREIGN KEY (`activityid`) REFERENCES
 ALTER TABLE `runalyze_raceresult`
 ADD CONSTRAINT `runalyze_raceresult_ibfk_1` FOREIGN KEY (`accountid`) REFERENCES `runalyze_account` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
 ADD CONSTRAINT `runalyze_raceresult_ibfk_2` FOREIGN KEY (`activity_id`) REFERENCES `runalyze_training` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+
+--
+-- Constraints der Tabelle `runalyze_notification`
+--
+ALTER TABLE runalyze_notification ADD CONSTRAINT FK_F99B51889B6B5FBA FOREIGN KEY (account_id) REFERENCES runalyze_account (id);

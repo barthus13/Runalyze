@@ -53,10 +53,10 @@ final class Keys extends AbstractEnum
 	const HEARTRATE_MAX = 12;
 
 	/** @var int */
-	const VDOT_ICON = 13;
+	const VO2MAX_ICON = 13;
 
 	/** @var int */
-	const VDOT_VALUE = 14;
+	const VO2MAX_VALUE = 14;
 
 	/** @var int */
 	const FIT_VO2MAX_ESTIMATE = 15;
@@ -66,9 +66,6 @@ final class Keys extends AbstractEnum
 
 	/** @var int */
 	const FIT_HRV_ANALYSIS = 17;
-
-	/** @var int */
-	const JD_INTENSITY = 18;
 
 	/** @var int */
 	const TRIMP = 19;
@@ -104,7 +101,7 @@ final class Keys extends AbstractEnum
 	const SPLITS = 29;
 
 	/** @var int */
-	const COMMENT = 30;
+	const TITLE = 30;
 
 	/** @var int */
 	const TRAININGPARTNER = 31;
@@ -160,7 +157,13 @@ final class Keys extends AbstractEnum
 	/** @var int */
 	const HEAT_INDEX = 48;
 
-	/**
+    /** @var int */
+    const FIT_PERFORMANCE_CONDITION_START = 49;
+
+    /** @var int */
+    const FIT_PERFORMANCE_CONDITION_END = 50;
+
+    /**
 	 * @var array|null
 	 */
 	private static $ClassNames = null;
@@ -230,12 +233,11 @@ final class Keys extends AbstractEnum
 			self::ENERGY => 'Energy',
 			self::HEARTRATE_AVG => 'HeartrateAverage',
 			self::HEARTRATE_MAX => 'HeartrateMaximum',
-			self::VDOT_ICON => 'VdotIcon',
-			self::VDOT_VALUE => 'VdotValue',
+			self::VO2MAX_ICON => 'VO2maxIcon',
+			self::VO2MAX_VALUE => 'VO2maxValue',
 			self::FIT_VO2MAX_ESTIMATE => 'FitVO2maxEstimate',
 			self::FIT_RECOVERY_TIME => 'FitRecoveryTime',
 			self::FIT_HRV_ANALYSIS => 'FitHrvAnalysis',
-			self::JD_INTENSITY => 'JdIntensity',
 			self::TRIMP => 'Trimp',
 			self::CADENCE => 'Cadence',
 			self::POWER => 'Power',
@@ -247,7 +249,7 @@ final class Keys extends AbstractEnum
 			self::WEATHER => 'Weather',
 			self::ROUTE => 'Route',
 			self::SPLITS => 'Splits',
-			self::COMMENT => 'Comment',
+			self::TITLE => 'Title',
 			self::TRAININGPARTNER => 'TrainingPartner',
 			self::TOTAL_STROKES => 'TotalStrokes',
 			self::VERTICAL_RATIO => 'VerticalRatio',
@@ -265,7 +267,9 @@ final class Keys extends AbstractEnum
 			self::GRADIENT => 'Gradient',
 			self::FIT_PERFORMANCE_CONDITION => 'FitPerformanceCondition',
 			self::RACE_RESULT => 'RaceResult',
-			self::HEAT_INDEX => 'HeatIndex'
-		);
+			self::HEAT_INDEX => 'HeatIndex',
+            self::FIT_PERFORMANCE_CONDITION_START => 'FitPerformanceConditionStart',
+            self::FIT_PERFORMANCE_CONDITION_END => 'FitPerformanceConditionEnd'
+        );
 	}
 }

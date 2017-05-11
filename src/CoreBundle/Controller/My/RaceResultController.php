@@ -7,12 +7,16 @@ use Runalyze\Bundle\CoreBundle\Entity\Raceresult;
 use Runalyze\Bundle\CoreBundle\Entity\RaceresultRepository;
 use Runalyze\Bundle\CoreBundle\Entity\Training;
 use Runalyze\Metrics\LegacyUnitConverter;
-use Runalyze\Parameter\Application\PaceUnit;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Runalyze\Bundle\CoreBundle\Form\RaceResultType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @Route("/my/raceresult")
+ * @Security("has_role('ROLE_USER')")
+ */
 class RaceResultController extends Controller
 {
     /**
@@ -24,7 +28,11 @@ class RaceResultController extends Controller
     }
 
     /**
-     * @Route("/my/raceresult/{activityId}", name="raceresult-form", requirements={"activityId" = "\d+"})
+     * @Route("/{activityId}", name="raceresult-form", requirements={"activityId" = "\d+"})
+     * @param int $activityId
+     * @param Account $account
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function raceresultFormAction($activityId, Account $account, Request $request)
     {
@@ -64,7 +72,7 @@ class RaceResultController extends Controller
     }
 
     /**
-     * @Route("/my/raceresult/{activityId}/delete", name="raceresult-delete", requirements={"activityId" = "\d+"})
+     * @Route("/{activityId}/delete", name="raceresult-delete", requirements={"activityId" = "\d+"})
      */
     public function raceresultDeleteAction($activityId, Request $request, Account $account)
     {

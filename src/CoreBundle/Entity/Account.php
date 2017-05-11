@@ -94,7 +94,7 @@ class Account implements AdvancedUserInterface, \Serializable
     /**
      * @var int
      * @Assert\Type("int")
-     * @ORM\Column(name="gender", type="integer", columnDefinition="tinyint(1) unsigned NOT NULL DEFAULT 0")
+     * @ORM\Column(name="gender", type="integer", columnDefinition="TINYINT UNSIGNED NOT NULL DEFAULT 0")
      */
     private $gender = Gender::NONE;
 
@@ -163,21 +163,35 @@ class Account implements AdvancedUserInterface, \Serializable
     /**
      * @var bool
      * @Assert\Type("bool")
-     * @ORM\Column(name="allow_mails", type="boolean", columnDefinition="tinyint(1) unsigned NOT NULL DEFAULT 1")
+     * @ORM\Column(name="allow_mails", type="boolean", columnDefinition="TINYINT UNSIGNED NOT NULL DEFAULT 1")
      */
     private $allowMails = true;
 
     /**
      * @var bool
      * @Assert\Type("bool")
-     * @ORM\Column(name="allow_support", type="boolean", columnDefinition="tinyint(1) unsigned NOT NULL DEFAULT 0")
+     * @ORM\Column(name="allow_support", type="boolean", columnDefinition="TINYINT UNSIGNED NOT NULL DEFAULT 0")
      */
     private $allowSupport = false;
 
     /**
+     * @var \Doctrine\Common\Collections\Collection
+     *
+     * @ORM\OneToMany(targetEntity="Runalyze\Bundle\CoreBundle\Entity\Sport", mappedBy="account", cascade={"persist"}, fetch="EXTRA_LAZY")
+     */
+    protected $sports;
+
+    /**
+     * @var \Doctrine\Common\Collections\Collection
+     *
+     * @ORM\OneToMany(targetEntity="Runalyze\Bundle\CoreBundle\Entity\EquipmentType", mappedBy="account", cascade={"persist"}, fetch="EXTRA_LAZY")
+     */
+    protected $equipmentTypes;
+
+    /**
      * @var int
      *
-     * @ORM\Column(name="role", columnDefinition="tinyint(3) unsigned NOT NULL DEFAULT 1")
+     * @ORM\Column(name="role", columnDefinition="TINYINT UNSIGNED NOT NULL DEFAULT 1")
      */
     private $role = UserRole::ROLE_USER;
 
@@ -718,6 +732,25 @@ class Account implements AdvancedUserInterface, \Serializable
         return array(UserRole::getRoleName($this->role));
     }
 
+    /**
+     * Get sports
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getSports()
+    {
+        return $this->sports;
+    }
+
+    /**
+     * Get equipment types
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getEquipmentTypes()
+    {
+        return $this->equipmentTypes;
+    }
 
     /** @see \Serializable::serialize() */
     public function serialize()

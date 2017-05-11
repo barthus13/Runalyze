@@ -7,8 +7,8 @@
 namespace Runalyze\Dataset;
 
 /**
- * Default dataset configuration that is used 
- * 
+ * Default dataset configuration that is used
+ *
  * @author Hannes Christiansen
  * @package Runalyze\Dataset
  */
@@ -41,21 +41,22 @@ class DefaultConfiguration extends Configuration
 			Keys::ELEVATION => true,
 			Keys::ENERGY => true,
 			Keys::SPLITS => true,
-			Keys::COMMENT => true,
+			Keys::TITLE => true,
 			Keys::TRIMP => true,
-			Keys::VDOT_ICON => true,
-			Keys::VDOT_VALUE => false,
+			Keys::VO2MAX_ICON => true,
+			Keys::VO2MAX_VALUE => false,
 			Keys::TRAININGPARTNER => false,
 			Keys::ROUTE => false,
 			Keys::CADENCE => false,
 			Keys::POWER => false,
-			Keys::JD_INTENSITY => true,
 			Keys::GROUNDCONTACT => true,
 			Keys::VERTICAL_OSCILLATION => true,
 			Keys::STRIDE_LENGTH => false,
 			Keys::FIT_VO2MAX_ESTIMATE => false,
 			Keys::FIT_PERFORMANCE_CONDITION => false,
-			Keys::FIT_RECOVERY_TIME => false,
+            Keys::FIT_PERFORMANCE_CONDITION_START => false,
+            Keys::FIT_PERFORMANCE_CONDITION_END => false,
+            Keys::FIT_RECOVERY_TIME => false,
 			Keys::FIT_HRV_ANALYSIS => false,
 			Keys::FIT_TRAINING_EFFECT => false,
 			Keys::SWOLF => false,

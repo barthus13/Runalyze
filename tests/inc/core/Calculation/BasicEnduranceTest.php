@@ -4,6 +4,7 @@ namespace Runalyze\Calculation;
 
 use Runalyze\Configuration;
 use DB;
+use Runalyze\Util\LocalTime;
 
 class BasicEnduranceTest extends \PHPUnit_Framework_TestCase {
 
@@ -22,13 +23,13 @@ class BasicEnduranceTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testSetterAndGetter() {
-		$this->object->setVDOT(50);
+		$this->object->setEffectiveVO2max(50);
 		$this->object->setDaysToRecognizeForLongjogs(30);
 		$this->object->setDaysToRecognizeForWeekKilometer(60);
 		$this->object->setMinimalDaysToRecognizeForWeekKilometer(30);
 		$this->object->setMinimalDistanceForLongjogs(10);
 
-		$this->assertEquals(50, $this->object->getUsedVDOT());
+		$this->assertEquals(50, $this->object->getUsedEffectiveVO2max());
 		$this->assertEquals(30, $this->object->getDaysToRecognizeForLongjogs());
 		$this->assertEquals(60, $this->object->getDaysToRecognizeForWeekKilometer());
 		$this->assertEquals(30, $this->object->getMinimalDaysToRecognizeForWeekKilometer());
@@ -53,41 +54,41 @@ class BasicEnduranceTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals(0, $this->object->getPercentageForWeekKilometer());
 	}
 
-	public function testThatMinimalVdotIsUsed() {
-		$this->object->setVDOT(20);
-		$this->assertEquals(25, $this->object->getUsedVDOT());
+	public function testThatMinimalVO2maxIsUsed() {
+		$this->object->setEffectiveVO2max(20);
+		$this->assertEquals(25, $this->object->getUsedEffectiveVO2max());
 	}
 
 	public function testTargets() {
 		$this->object->setMinimalDistanceForLongjogs(10);
 
-		$this->object->setVDOT(30);
+		$this->object->setEffectiveVO2max(30);
 		$this->assertEquals(47.5, $this->object->getTargetWeekKm(), '', 1);
 		$this->assertEquals(24, $this->object->getRealTargetLongjogKmPerWeek(), '', 1);
 
-		$this->object->setVDOT(40);
+		$this->object->setEffectiveVO2max(40);
 		$this->assertEquals(66, $this->object->getTargetWeekKm(), '', 1);
 		$this->assertEquals(27.5, $this->object->getRealTargetLongjogKmPerWeek(), '', 1);
 
-		$this->object->setVDOT(50);
+		$this->object->setEffectiveVO2max(50);
 		$this->assertEquals(85, $this->object->getTargetWeekKm(), '', 1);
 		$this->assertEquals(30, $this->object->getRealTargetLongjogKmPerWeek(), '', 1);
 
-		$this->object->setVDOT(60);
+		$this->object->setEffectiveVO2max(60);
 		$this->assertEquals(104, $this->object->getTargetWeekKm(), '', 1);
 		$this->assertEquals(32.5, $this->object->getRealTargetLongjogKmPerWeek(), '', 1);
 
-		$this->object->setVDOT(70);
+		$this->object->setEffectiveVO2max(70);
 		$this->assertEquals(124, $this->object->getTargetWeekKm(), '', 1);
 		$this->assertEquals(34.5, $this->object->getRealTargetLongjogKmPerWeek(), '', 1);
 
-		$this->object->setVDOT(80);
+		$this->object->setEffectiveVO2max(80);
 		$this->assertEquals(145, $this->object->getTargetWeekKm(), '', 1);
 		$this->assertEquals(36, $this->object->getRealTargetLongjogKmPerWeek(), '', 1);
 	}
 
-	public function testForVDOT30() {
-		$this->object->setVDOT(30);
+	public function testForVO2max30() {
+		$this->object->setEffectiveVO2max(30);
 		$this->object->setDaysToRecognizeForLongjogs(7);
 		$this->object->setDaysToRecognizeForWeekKilometer(7);
 		$this->object->setMinimalDaysToRecognizeForWeekKilometer(7);
@@ -95,9 +96,9 @@ class BasicEnduranceTest extends \PHPUnit_Framework_TestCase {
 		$this->object->setPercentageForLongjogs(0.33);
 		$this->object->setPercentageForWeekKilometer(0.67);
 
-		DB::getInstance()->insert('training', array('sportid', 'time', 'distance', 's'), array(Configuration::General()->runningSport(), time() - 1*DAY_IN_S, 15, 2));
-		DB::getInstance()->insert('training', array('sportid', 'time', 'distance', 's'), array(Configuration::General()->runningSport(), time() - 3*DAY_IN_S, 15, 2));
-		DB::getInstance()->insert('training', array('sportid', 'time', 'distance', 's'), array(Configuration::General()->runningSport(), time() - 8*DAY_IN_S, 42, 2));
+		DB::getInstance()->insert('training', array('sportid', 'time', 'distance', 's'), array(Configuration::General()->runningSport(), LocalTime::fromServerTime(time())->getTimestamp() - 1*DAY_IN_S, 15, 2));
+		DB::getInstance()->insert('training', array('sportid', 'time', 'distance', 's'), array(Configuration::General()->runningSport(), LocalTime::fromServerTime(time())->getTimestamp() - 3*DAY_IN_S, 15, 2));
+		DB::getInstance()->insert('training', array('sportid', 'time', 'distance', 's'), array(Configuration::General()->runningSport(), LocalTime::fromServerTime(time())->getTimestamp() - 8*DAY_IN_S, 42, 2));
 
 		$Results = $this->object->asArray();
 		$this->assertEquals(30, $Results['weekkm-result']);

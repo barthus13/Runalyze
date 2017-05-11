@@ -2,6 +2,7 @@ imports:
   - { resource: languages.yml }
   - { resource: security.yml }
   - { resource: services.yml }
+  - { resource: queue.yml }
   - { resource: default_config.yml }
   - { resource: ../../data/config.yml }
 
@@ -24,11 +25,18 @@ framework:
       - '%kernel.root_dir%/../inc/locale/'
 
 parameters:
-  RUNALYZE_VERSION: 3.1.0
+  RUNALYZE_VERSION: 4.1.0
 
 twig:
   globals:
     RUNALYZE_VERSION: '%RUNALYZE_VERSION%'
+    garmin_api_key: '%garmin_api_key%'
+    openweathermap_api_key: '%openweathermap_api_key%'
+    darksky_api_key: '%darksky_api_key%'
+    nokia_here_appid: '%nokia_here_appid%'
+    nokia_here_token: '%nokia_here_token%'
+    thunderforest_api_key: '%thunderforest_api_key%'
+    mapbox_api_key: '%mapbox_api_key%'
     locales: '%locales%'
   paths:
     '%kernel.root_dir%/../data/views': __main__
@@ -69,6 +77,7 @@ doctrine:
                     enum:   string
 
 
+
     orm:
         auto_generate_proxy_classes: "%kernel.debug%"
         auto_mapping: true
@@ -81,6 +90,8 @@ doctrine:
         query_cache_driver:
             type: service
             id: doctrine_cache.providers.vendor_filesystem_query_cache
+        hydrators:
+            COLUMN_HYDRATOR: Runalyze\Bundle\CoreBundle\Doctrine\Hydrator\ColumnHydrator
         dql:
             datetime_functions:
                 from_unixtime: DoctrineExtensions\Query\Mysql\FromUnixtime
@@ -95,6 +106,7 @@ doctrine_migrations:
     name: RUNALYZE Migrations
 
 monolog:
+    channels: ['queue', 'console']
     handlers:
         applog:
             type: stream
@@ -110,6 +122,16 @@ monolog:
         syslog:
             type: syslog
             level: error
+        queue:
+            type: stream
+            level: debug
+            path: '%kernel.root_dir%/../var/logs/queue.log'
+            channels: ['queue']
+        console:
+            type: stream
+            level: error
+            path: '%kernel.root_dir%/../var/logs/console.log'
+            channels: ['console']
 
 swiftmailer:
     transport:            smtp

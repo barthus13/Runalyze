@@ -36,15 +36,23 @@ class DefaultController extends Controller
 
     /**
      * @Route("/dashboard", name="dashboard")
+     * @Security("has_role('ROLE_USER')")
+     */
+    public function dashboardAction()
+    {
+        $Frontend = new \Frontend(true, $this->get('security.token_storage'));
+        include '../dashboard.php';
+
+        return $this->render('legacy_end.html.twig');
+    }
+
+    /**
      * @Route("/", name="base_url")
      * @Security("has_role('ROLE_USER')")
      */
     public function indexAction()
     {
-	    $Frontend = new \Frontend(true, $this->get('security.token_storage'));
-	    include '../dashboard.php';
-
-        return $this->render('legacy_end.html.twig');
+        return $this->redirect($this->generateUrl('dashboard'));
     }
 
     /**
@@ -138,17 +146,6 @@ class DefaultController extends Controller
         $numDistance =  $repository->getAmountOfLoggedKilometers();
 
         return ['user' => (int)$numUser, 'distance' => Distance::format($numDistance)];
-    }
-
-    /**
-     * @Route("/admin.php", name="admin")
-     */
-    public function adminAction()
-    {
-    	$Frontend = new \Frontend(true);
-    	$Frontend->displayAdminView();
-
-    	return new Response();
     }
 
     /**
