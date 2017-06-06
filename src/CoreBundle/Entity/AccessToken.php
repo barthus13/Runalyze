@@ -20,13 +20,18 @@ class AccessToken extends BaseAccessToken
     protected $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Client")
+     * @ORM\ManyToOne(targetEntity="Runalyze\Bundle\CoreBundle\Entity\Client")
      * @ORM\JoinColumn(nullable=false)
      */
     protected $client;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Account")
+     * @var \Runalyze\Bundle\CoreBundle\Entity\Account
+     *
+     * @ORM\ManyToOne(targetEntity="Runalyze\Bundle\CoreBundle\Entity\Account")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="user", referencedColumnName="id", nullable=false)
+     * })
      */
     protected $user;
 
