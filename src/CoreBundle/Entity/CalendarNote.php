@@ -63,7 +63,7 @@ class CalendarNote
      *
      * @ORM\ManyToOne(targetEntity="Runalyze\Bundle\CoreBundle\Entity\Account")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="accountid", referencedColumnName="id", nullable=false)
+     *   @ORM\JoinColumn(name="account_id", referencedColumnName="id", nullable=false)
      * })
      */
     private $account;

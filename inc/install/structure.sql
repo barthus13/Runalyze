@@ -479,6 +479,32 @@ CREATE TABLE IF NOT EXISTS `runalyze_notification` (
   `account_id` INT UNSIGNED NOT NULL,
   INDEX IDX_F99B51889B6B5FBA (account_id),
   PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB;
+  
+  
+CREATE TABLE `runalyze_calendar_note` (
+    id INT UNSIGNED AUTO_INCREMENT NOT NULL,
+    category_id INT UNSIGNED NOT NULL,
+    account_id INT UNSIGNED NOT NULL,
+    note TINYTEXT DEFAULT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    INDEX IDX_5BF96DB12469DE2 (category_id),
+    INDEX IDX_5BF96DBF75A974A (account_id),
+    PRIMARY KEY(id))
+    DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB;
+
+CREATE TABLE `runalyze_calendar_note_category` (
+    id INT UNSIGNED AUTO_INCREMENT NOT NULL,
+    account_id INT UNSIGNED NOT NULL,
+    internal_id tinyint NULL,
+    name VARCHAR(50) NOT NULL,
+    color CHAR(6) NOT NULL,
+    privacy tinyint unsigned NOT NULL DEFAULT 1,
+    INDEX IDX_D1C190C9F75A974A (account_id),
+    UNIQUE INDEX unique_internal_id (account_id, internal_id),
+    PRIMARY KEY(id))
+    DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB;
+
 
 -- --------------------------------------------------------
 
@@ -765,3 +791,10 @@ ADD CONSTRAINT `runalyze_raceresult_ibfk_2` FOREIGN KEY (`activity_id`) REFERENC
 -- Constraints der Tabelle `runalyze_notification`
 --
 ALTER TABLE runalyze_notification ADD CONSTRAINT FK_F99B51889B6B5FBA FOREIGN KEY (account_id) REFERENCES runalyze_account (id) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints der Tabelle `runalyze_calendar*`
+--
+ALTER TABLE `runalyze_calendar_note_category` ADD CONSTRAINT FK_D1C190C9F75A974A FOREIGN KEY (account_id) REFERENCES `runalyze_account` (id) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `runalyze_calendar_note` ADD CONSTRAINT FK_5BF96DB12469DE2 FOREIGN KEY (category_id) REFERENCES `runalyze_calendar_note_category` (id) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `runalyze_calendar_note` ADD CONSTRAINT FK_5BF96DBF75A974A FOREIGN KEY (account_id) REFERENCES `runalyze_account` (id)  ON DELETE CASCADE ON UPDATE CASCADE;
