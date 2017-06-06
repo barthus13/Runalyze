@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * CalendarNoteCategory
  *
- * @ORM\Table(name="calendar_note_category", uniqueConstraints={@ORM\UniqueConstraint(name="unique_internal_id", columns={"accountid", "internal_id"})})
+ * @ORM\Table(name="calendar_note_category", uniqueConstraints={@ORM\UniqueConstraint(name="unique_internal_calendar_id", columns={"accountid", "internal_id"})})
  * @ORM\Entity(repositoryClass="Runalyze\Bundle\CoreBundle\Entity\CalendarNoteCategoryRepository")
  */
 class CalendarNoteCategory
