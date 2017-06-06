@@ -151,7 +151,7 @@ class SearchResults {
 			'is_night',
 			'weatherid',
 			'route',
-			'comment',
+			'title',
 			'partner',
 			'notes'
 		);
@@ -638,7 +638,7 @@ class SearchResults {
 		$MultiEditor = new MultiEditor($IDs);
 		$MultiEditor->display();
 
-		echo Ajax::wrapJS('$("#ajax > .panel-heading, #ajax > .panel-content").remove();$("#ajax").removeClass("big-window").addClass("small-window");');
+		echo Ajax::wrapJS('$("#ajax").removeClass("big-window").addClass("small-window");');
 	}
 
 	/**
