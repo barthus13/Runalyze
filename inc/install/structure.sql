@@ -483,6 +483,61 @@ CREATE TABLE IF NOT EXISTS `runalyze_notification` (
 -- --------------------------------------------------------
 
 --
+-- Tabellenstruktur für oauth tables
+--
+CREATE TABLE runalyze_client (
+    id INT AUTO_INCREMENT NOT NULL,
+    random_id VARCHAR(255) NOT NULL,
+    redirect_uris LONGTEXT NOT NULL,
+    secret VARCHAR(255) NOT NULL,
+    allowed_grant_types LONGTEXT NOT NULL,
+    name VARCHAR(50) NOT NULL,
+    description TEXT DEFAULT NULL,
+    mail VARCHAR(100) NOT NULL,
+    url VARCHAR(255) NOT NULL,
+    PRIMARY KEY(id))
+    DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB;
+
+CREATE TABLE runalyze_access_token (
+    id INT AUTO_INCREMENT NOT NULL,
+    client_id INT NOT NULL,
+    user INT UNSIGNED NOT NULL,
+    token VARCHAR(255) NOT NULL,
+    expires_at INT DEFAULT NULL,
+    scope VARCHAR(255) DEFAULT NULL,
+    UNIQUE INDEX UNIQ_F06DFA2A5F37A13B (token),
+    INDEX IDX_F06DFA2A19EB6921 (client_id),
+    INDEX IDX_F06DFA2A8D93D649 (user),
+    PRIMARY KEY(id))
+    DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB;
+
+CREATE TABLE runalyze_refresh_token (
+    id INT AUTO_INCREMENT NOT NULL,
+    client_id INT NOT NULL,
+    user_id INT UNSIGNED DEFAULT NULL,
+    token VARCHAR(255) NOT NULL,
+    expires_at INT DEFAULT NULL,
+    scope VARCHAR(255) DEFAULT NULL,
+    UNIQUE INDEX UNIQ_5FDBCE0E5F37A13B (token),
+    INDEX IDX_5FDBCE0E19EB6921 (client_id),
+    INDEX IDX_5FDBCE0EA76ED395 (user_id),
+    PRIMARY KEY(id))
+    DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB;
+
+CREATE TABLE runalyze_auth_code (
+    id INT AUTO_INCREMENT NOT NULL,
+    client_id INT NOT NULL,
+    user INT UNSIGNED NOT NULL,
+    token VARCHAR(255) NOT NULL,
+    redirect_uri LONGTEXT NOT NULL,
+    expires_at INT DEFAULT NULL,
+    scope VARCHAR(255) DEFAULT NULL,
+    UNIQUE INDEX UNIQ_5A29D59E5F37A13B (token),
+    INDEX IDX_5A29D59E19EB6921 (client_id),
+    INDEX IDX_5A29D59E8D93D649 (user),
+    PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB;
+
+--
 -- Indizes der exportierten Tabellen
 --
 
@@ -765,3 +820,10 @@ ADD CONSTRAINT `runalyze_raceresult_ibfk_2` FOREIGN KEY (`activity_id`) REFERENC
 -- Constraints der Tabelle `runalyze_notification`
 --
 ALTER TABLE runalyze_notification ADD CONSTRAINT FK_F99B51889B6B5FBA FOREIGN KEY (account_id) REFERENCES runalyze_account (id) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE runalyze_access_token ADD CONSTRAINT FK_F06DFA2A19EB6921 FOREIGN KEY (client_id) REFERENCES runalyze_client (id);
+ALTER TABLE runalyze_access_token ADD CONSTRAINT FK_F06DFA2A8D93D649 FOREIGN KEY (user) REFERENCES runalyze_account (id) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE runalyze_refresh_token ADD CONSTRAINT FK_5FDBCE0E19EB6921 FOREIGN KEY (client_id) REFERENCES runalyze_client (id);
+ALTER TABLE runalyze_refresh_token ADD CONSTRAINT FK_5FDBCE0EA76ED395 FOREIGN KEY (user_id) REFERENCES runalyze_account (id) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE runalyze_auth_code ADD CONSTRAINT FK_5A29D59E19EB6921 FOREIGN KEY (client_id) REFERENCES runalyze_client (id);
+ALTER TABLE runalyze_auth_code ADD CONSTRAINT FK_5A29D59E8D93D649 FOREIGN KEY (user) REFERENCES runalyze_account (id) ON DELETE CASCADE ON UPDATE CASCADE;
