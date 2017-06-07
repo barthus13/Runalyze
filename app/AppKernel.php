@@ -26,6 +26,7 @@ class AppKernel extends \Symfony\Component\HttpKernel\Kernel
             new JMS\TranslationBundle\JMSTranslationBundle(),
             new Bernard\BernardBundle\BernardBundle(),
             new FOS\OAuthServerBundle\FOSOAuthServerBundle(),
+            new FOS\RestBundle\FOSRestBundle(),
         ];
 
         if ('dev' == $this->getEnvironment()) {

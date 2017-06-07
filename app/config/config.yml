@@ -23,6 +23,8 @@ framework:
     fallbacks: ['%locale%']
     paths:
       - '%kernel.root_dir%/../inc/locale/'
+  serializer:
+    enable_annotations: true
 
 parameters:
   RUNALYZE_VERSION: 4.2.0-dev
